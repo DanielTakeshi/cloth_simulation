@@ -21,8 +21,9 @@ if __name__ == "__main__":
         print("Automated cutting")
         auto = True
 
+    # Originally mouse.down = True but I think it's better as False.
     mouse = Mouse()
-    mouse.down = True
+    mouse.down = False
     mouse.button = 0
 
     circlex = 300
@@ -33,6 +34,8 @@ if __name__ == "__main__":
     # stable; the cloth 'collapses' ... need to investigate code?
     c = CircleCloth(mouse, width=50, height=50)
 
+    # Setting as false, we can run in manual mode and avoid clicking, which
+    # means the cloth will update on its own (for gravity).
     run_equilibrium = False
     if run_equilibrium:
         print("Letting the cloth reach equilibrium...")

@@ -1,5 +1,19 @@
 # cloth_simulation
+
 This repository contains scripts used to simulate cloth physics in 3D under various conditions and interactions.
+
+Questions to consider and possible TODOs:
+
+- Gravity constant seems very arbitrary, not sure how accurate it has to be for
+  physics modeling?
+- Why not diagonal constraints? I thought that would cause a collapse?
+- What's with vx, vy, vz? Seems like that contains the acceleration term needed
+  for Verlet integration?
+- Support action moving in 3D, with pulling upwards, then somewhere else. Will
+  we be able to do folds? Visualizing might be a challenge ... Try a side view
+  in addition to current view?
+- Why update with delta 0.016?
+
 
 ## Files, Scripts, and Directories:
 

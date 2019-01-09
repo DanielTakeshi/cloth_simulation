@@ -51,9 +51,9 @@ class CircleCloth(Cloth):
           memory on storing duplicate constraints. I also think each constraint
           is a simple spring mass model with friction.
 
-        If we wanted to make this rest on a table-like object, we should enforce
-        a minimum z-coordinate limit. The z-coordinate naturally decreases
-        (before stabilizing) as simulation proceeds due to gravity.
+        To make this rest on a table-like object, we should enforce a minimum
+        z-coordinate limit. The z-coordinate naturally decreases (before
+        stabilizing) as simulation proceeds due to gravity.
         """
         self.pts = []
         self.shapepts = []
@@ -94,9 +94,19 @@ class CircleCloth(Cloth):
 
     def update(self):
         """Update function updates the state of the cloth after a time step.
+        Updates ALL points in `self.pts`, via each `pt.update(...)` call.
+
         REMOVES points if there are no more constraints for it. That's why the
         lower left point is removed, because there aren't constraints the way
         it's set up above. Constraints 'go down' and 'go left', intuitively.
+        We made points as sets, so removal should be O(1).
+
+        The `physics_accuracy` term: when resolving a constraint we affect other
+        constraints that need to be updated? Probably. Calls to resolve
+        constraints may remove items from different `pt.constraints` lists. Note
+        call order: call the _point_'s method, which first resolves individual
+        constraints before resolving boundary constraints. (In our case we
+        really don't need boundary constraints.)
         """
         physics_accuracy = 5
         for i in range(physics_accuracy):
@@ -123,6 +133,8 @@ class CircleCloth(Cloth):
 
     def reset(self):
         """Resets cloth to its initial state.
+        (Daniel: better figure out an easier way to do this than copy a bunch of
+        the init code ...)
         """
         self.mouse.reset()
         width, height = self.initial_params[0]

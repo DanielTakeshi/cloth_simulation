@@ -66,36 +66,44 @@ class Point(object):
 
 
     def update(self, delta):
-        """
-        Updates the point, takes in mouse input. THIS IS VERLET INTEGRATION.
-        Applies a gravitational force to it; parameter can be tuned for varying results.
+        """ APPLY VERLET INTEGRATION. Updates the point, takes in mouse input.
+        Applies gravitational force to it; parameter can be tuned for varying results.
         The 0.99 here is friction, same as (1-damping) with damping = 0.01.
 
         Difference with some cloth sim code online is that we have to consider
-        input from the mouse.
-        """
-        debug = self.debug
+        input from the mouse. Here, `self.{x,y,z}` is the CURRENT point, and
+        `mouse.{x,y,z}` is where the mouse is pressed. For a given mouse, we
+        need to update ALL points.
+        
+        Intuitively, points very far from the mouse are not affected, hence
+        `mouse.influence` parameter (not used because I don't see button=1?) and
+        `mouse.cut` (used!). If we're close enough to mouse, we simply remove
+        constraints. Then, resolving constraints during next cloth update will
+        remove the points.
 
+        The delta is the time step. Brijen selected as 0.016?
+        """
         if self.mouse.down:
-            if debug:
-                print("holding mouse down!")
             dx = self.x - self.mouse.x
             dy = self.y - self.mouse.y
             dz = self.z - self.mouse.z
             dist = sqrt(dx ** 2 + dy ** 2)
             if self.mouse.button == 1:
+                print("  self.mouse.button == 1")
                 if dist < self.mouse.influence:
                     self.px = self.x - (self.mouse.x - self.mouse.px) * 1.8
                     self.py = self.y - (self.mouse.y - self.mouse.py) * 1.8
             elif dist < self.mouse.cut and abs(dz) < self.mouse.height_limit:
+                print("  dist = {:.1f} < mouse.cut !!".format(dist))
                 self.constraints = []
 
         self.add_force(0, 0, self.gravity)
-        delta *= delta
 
+        # Verlet integration
+        delta *= delta
         nx = self.x + ((self.x - self.px)) * 0.99 + ((self.vx / 2.0) * delta) + np.random.randn() * self.noise
         ny = self.y + ((self.y - self.py)) * 0.99 + ((self.vy / 2.0) * delta) + np.random.randn() * self.noise
-        nz = self.z + ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
+        nz = self.z +                               ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
 
         self.px, self.py, self.pz = self.x, self.y, self.z
         self.x, self.y, self.z = nx, ny, nz

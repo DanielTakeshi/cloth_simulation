@@ -2,7 +2,11 @@
 An implementation of a mouse class, that can be updated/modified
 to cut the cloth or disturb it. This can be used to interface with
 a physical or virtual mouse.
+
+Updates from mouse are only applied if `mouse.down=True`. We can make this true
+by default but I think best to only do if we're clicking.
 """
+
 class Mouse(object):
 
     def __init__(self, x=0, y=0, z=0, height_limit=False, down=False,
@@ -22,8 +26,7 @@ class Mouse(object):
 
 
     def move(self, x, y, z=None):
-        """
-        Move mouse to a position on the canvas.
+        """ Move mouse to a position on the canvas.
         """
         if not z:
             z = self.z
@@ -33,27 +36,27 @@ class Mouse(object):
         else:
             print "Invalid location: Out of Bounds."
 
+
     def clicked(self, event):
-        """
-        Handles click events of the mouse.
+        """ Handles click events of the mouse.
         """
         self.down = True
 
+
     def released(self, event):
-        """
-        Handles mouse release events.
+        """ Handles mouse release events.
         """
         self.down = False
 
+
     def moved(self, event):
-        """
-        Handles mouse move events.
+        """ Handles mouse move events.
         """
         self.move(event.xdata, event.ydata)
 
+
     def reset(self):
-        """
-        Resets the mouse object to its initial state.
+        """ Resets the mouse object to its initial state.
         """
         pos = self.initial_params[0]
         self.x, self.y, self.z = pos
