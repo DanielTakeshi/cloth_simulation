@@ -4,13 +4,15 @@ from mouse import *
 import numpy as np
 
 """
-A class that simulates a point mass. A cloth is made up of a collection of these interacting with each other.
+A class that simulates a point mass.
+A cloth is made up of a collection of these interacting with each other.
 """
 class Point(object):
 
-    def __init__(self, mouse, x=0, y=0, z=0, gravity=-1000.0, elasticity=1.0, bounds=(600, 600, 800), shape=0, identity=-1, noise=0):
-        """
-        Initializes an instance of a particle.
+    def __init__(self, mouse, x=0, y=0, z=0, gravity=-1000.0, elasticity=1.0,
+                 bounds=(600, 600, 800), shape=0, identity=-1, noise=0,
+                 debug=False):
+        """Initializes an instance of a particle.
         """
         self.mouse = mouse
         self.x, self.y, self.z = x, y, z
@@ -24,23 +26,27 @@ class Point(object):
         self.shape = shape
         self.noise = noise
         self.identity = identity
+        self.debug = debug
+
 
     def add_constraint(self, pt):
-        """
-        Adds a constraint between this point and another point.
+        """Adds a constraint between this point and another point.
         """
         self.constraints.append(Constraint(self, pt, elasticity=self.elasticity))
 
+
     def add_force(self, x, y, z=0):
-        """
-        Applies a force to itself.
+        """Applies a force to itself, simply add to current vx, vy, vz.
+        If point is pinned, we cannot change its spot. Hence velocities are 0.
         """
         if not self.pinned:
             self.vx, self.vy, self.vz = self.vx + x, self.vy + y, self.vz + z
 
+
     def resolve_constraints(self):
         """
-        Resolves all constraints pertaining to this point, and simulates bouncing off the walls if the point tries to go out of bounds.
+        Resolves all constraints pertaining to this point, and simulates
+        bouncing off the walls if the point tries to go out of bounds.
         """
         for constraint in self.constraints:
             constraint.resolve()
@@ -58,12 +64,24 @@ class Point(object):
         elif self.z <= -boundsz:
             self.z = -2 * boundsz - self.z + np.random.randn() * self.noise
 
+
     def update(self, delta):
         """
-        Updates the point, takes in mouse input. Applies a gravitational force to it, this parameter can be tuned for varying results.
+        Updates the point, takes in mouse input. THIS IS VERLET INTEGRATION.
+        Applies a gravitational force to it; parameter can be tuned for varying results.
+        The 0.99 here is friction, same as (1-damping) with damping = 0.01.
+
+        Difference with some cloth sim code online is that we have to consider
+        input from the mouse.
         """
+        debug = self.debug
+
         if self.mouse.down:
-            dx, dy, dz = self.x - self.mouse.x, self.y - self.mouse.y, self.z - self.mouse.z
+            if debug:
+                print("holding mouse down!")
+            dx = self.x - self.mouse.x
+            dy = self.y - self.mouse.y
+            dz = self.z - self.mouse.z
             dist = sqrt(dx ** 2 + dy ** 2)
             if self.mouse.button == 1:
                 if dist < self.mouse.influence:
@@ -82,6 +100,7 @@ class Point(object):
         self.px, self.py, self.pz = self.x, self.y, self.z
         self.x, self.y, self.z = nx, ny, nz
         self.vx, self.vy, self.vz = 0, 0, 0
+
         if self.noise:
             dx, dy, dz = np.random.randn() * self.noise, np.random.randn() * self.noise, np.random.randn() * self.noise
             self.x += dx

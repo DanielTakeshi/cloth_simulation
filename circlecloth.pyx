@@ -3,13 +3,57 @@ from cloth import *
 from mouse import *
 
 """
-A subclass of cloth, on which a circle pattern is drawn. It also can be grabbed and tensioned.
+A subclass of cloth, on which a circle pattern is drawn.
+It also can be grabbed and tensioned.
 """
 class CircleCloth(Cloth):
 
-    def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10, centerx=300, centery=300, radius=150, gravity=-1000.0, elasticity=1.0, pin_cond="default", bounds=(600, 600, 800)):
-        """
-        A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
+    def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10,
+                 centerx=300, centery=300, radius=150, gravity=-1000.0,
+                 elasticity=1.0, pin_cond="default", bounds=(600, 600, 800)):
+        """A cloth on which a circle can be drawn.
+        It can also be grabbed and tensioned at specific coordinates.
+        
+        Explanation of code (the 'visual' is what demo.py shows us):
+
+        - Create height*width points, store in `self.pts`. Some of these are
+          considered to be on the 'shape' (`shapepts`), and others aren't; we
+          plot them with different colors.
+        - Elasticity and gravity can be tuned.
+        - Coordinate ranges bounded over (600x600). Not sure why we have 800
+          here ... the visual is clearly 600x600 and we ignore z, all points
+          have z=0 at start.
+        - Have a fixed circle shape and we check if absolute distance from point
+          to the center is close to the radius. Remember, distances over our
+          cordinate ranges!
+        - When we create points, we create an offset of 50 in the x and y
+          direction, for making a gap. The origin is in the bottom left, bottom
+          right of the visual, and the x-axis corresponds to the bottom row,
+          y-axis corresonds to leftmost column, good. Surprisingly, if I don't
+          have these offsets, the cloth isn't stable?
+        - Gap of 10 (i.e., `dx`) between each point in vertical and horizontal
+          directions.
+        - Pinning: only if point is in top row or bottom row. The `y` in the fxn
+          is actually the `i` in the for loop over y, not `point.y` which would
+          be incorrect due to offsets and dx.
+        - For constraints, recall the loop is over height then width, so we get
+            (0,0), (1,0), ..., (w-1,0), (0,1), (1,1), ..., (w-1,1), (0,2), ...
+          where the tuples represent (j,i), so (width,height), and w=width.
+          I.e., create all points in row 0 (bottom), then points in row 1 (just
+          above it), etc.
+        - For each point, add constraint with itself and point below it.
+          Exception: if we're at the first (bottom-most) row.
+        - For each point, add constraint with itself and point to its left
+          (i.e., `self.pts[-1]`, except if we're at leftmost column.
+        - Seems like we do NOT have 'diagonal' or 'bending' constraints.
+        - For the above constraints, the original point stores it in its own
+          list; not sure about the 'other' point? I think not, which saves 2x
+          memory on storing duplicate constraints. I also think each constraint
+          is a simple spring mass model with friction.
+
+        If we wanted to make this rest on a table-like object, we should enforce
+        a minimum z-coordinate limit. The z-coordinate naturally decreases
+        (before stabilizing) as simulation proceeds due to gravity.
         """
         self.pts = []
         self.shapepts = []
@@ -19,11 +63,20 @@ class CircleCloth(Cloth):
         if not mouse:
             mouse = Mouse(bounds=bounds)
         self.mouse = mouse
+
+        # Use this fxn to simulate cloth pinned along top and bottom.
         if pin_cond == "default":
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
+
         for i in range(height):
             for j in range(width):
-                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds)
+                pt = Point(mouse,
+                           x = 50 + dx*j,
+                           y = 50 + dy*i,
+                           z = 0,
+                           gravity=gravity,
+                           elasticity=elasticity,
+                           bounds=bounds)
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:
@@ -40,8 +93,10 @@ class CircleCloth(Cloth):
 
 
     def update(self):
-        """
-        Update function updates the state of the cloth after a time step.
+        """Update function updates the state of the cloth after a time step.
+        REMOVES points if there are no more constraints for it. That's why the
+        lower left point is removed, because there aren't constraints the way
+        it's set up above. Constraints 'go down' and 'go left', intuitively.
         """
         physics_accuracy = 5
         for i in range(physics_accuracy):
@@ -52,6 +107,8 @@ class CircleCloth(Cloth):
         toremoveshape, toremovenorm = [], []
         for pt in self.pts:
             if pt.constraints == []:
+                print("removing pt (x, y, z):  ({:.1f}, {:.1f}, {:.1f})".format(
+                        pt.x, pt.y, pt.z))
                 if pt in self.shapepts:
                     toremoveshape.append(pt)
                 else:
@@ -63,9 +120,9 @@ class CircleCloth(Cloth):
             self.pts.remove(pt)
             self.shapepts.remove(pt)
 
+
     def reset(self):
-        """
-        Resets cloth to its initial state.
+        """Resets cloth to its initial state.
         """
         self.mouse.reset()
         width, height = self.initial_params[0]

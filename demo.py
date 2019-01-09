@@ -7,16 +7,18 @@ from mouse import *
 from point import *
 from constraint import *
 from util import *
+"""
+This script contains a demo that can be run out of the box.
+If provided w/the 'manual' argument, the user can control position of the cutting tool.
+If this file is modified, you don't need to re-compile/build the cython code.
+"""
 
-"""
-This script contains a demo that can be run out of the box. If provided with the manual argument, the user can control the position of the cutting tool.
-"""
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "manual":
-        print "Manual cutting"
+        print("Manual cutting")
         auto = False
     else:
-        print "Automated cutting"
+        print("Automated cutting")
         auto = True
 
     mouse = Mouse()
@@ -27,32 +29,40 @@ if __name__ == "__main__":
     circley = 300
     radius = 150
 
-    c = CircleCloth(mouse)
+    # Careful, changing width/height will add more points but not make it
+    # stable; the cloth 'collapses' ... need to investigate code?
+    c = CircleCloth(mouse, width=50, height=50)
 
-    # Let the cloth reach equilibrium"
-    for i in range(200):
-        c.update()
-        if i % 10 == 0:
-            print "Iteration", i
+    run_equilibrium = False
+    if run_equilibrium:
+        print("Letting the cloth reach equilibrium...")
+        for i in range(100):
+            c.update()
+            if i % 10 == 0:
+                print("initial iteration", i)
+        print("Done, hopefully at equilibrium, now do simulation...")
 
     # Simulate grabbing the gauze
     c.pin_position(circlex, circley)
 
-    plt.ion()
+    plt.ion() # Interactive
 
     if not auto:
         fig = plt.figure()
         plot = fig.add_subplot(111)
         plot.set_title('manual')
-        cid=fig.canvas.mpl_connect('button_press_event', mouse.clicked)
-        rid=fig.canvas.mpl_connect('button_release_event', mouse.released)
-        mid=fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
+        cid = fig.canvas.mpl_connect('button_press_event', mouse.clicked)
+        rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
+        mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
     
     for i in range(400):
+        # Clear the figure
         if i % 10 == 0:
-            print "Iteration", i
+            print("Iteration", i)
         plt.clf()
-        pts = np.array([[p.x, p.y] for p in c.normalpts])
+
+        # Re-insert the points via scatter, w/potentially different colors.
+        pts  = np.array([[p.x, p.y] for p in c.normalpts])
         cpts = np.array([[p.x, p.y] for p in c.shapepts])
         if len(pts) > 0:
             plt.scatter(pts[:,0], pts[:,1], c='g')
@@ -69,7 +79,6 @@ if __name__ == "__main__":
             c.update()
 
         # simulate moving the mouse in a circle while cutting, overcut since no perception
-
         if auto:
             if i < 150:
                 theta = 360.0/100.0 * i * np.pi / 180.0

@@ -2,9 +2,9 @@ import numpy as np
 from cloth import *
 
 """
-A Tensioner grabs a circular region of cloth and fixes it in place. It can then tug on the cloth in a particular direction.
+A Tensioner grabs a circular region of cloth and fixes it in place.
+It can then tug on the cloth in a particular direction.
 """
-
 class Tensioner(object):
 
     def __init__(self, x, y, cloth, max_displacement=False):

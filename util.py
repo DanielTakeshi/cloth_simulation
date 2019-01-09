@@ -10,6 +10,7 @@ def write_to_file(cloth, filename):
     pickle.dump(cloth, f)
     f.close()
 
+
 def load_from_file(filename):
     """
     Load a past state from file.

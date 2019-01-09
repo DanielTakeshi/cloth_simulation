@@ -1,9 +1,12 @@
 """
-An implementation of a mouse class, that can be updated/modified to cut the cloth or disturb it. This can be used to interface with a physical or virtual mouse.
+An implementation of a mouse class, that can be updated/modified
+to cut the cloth or disturb it. This can be used to interface with
+a physical or virtual mouse.
 """
 class Mouse(object):
 
-    def __init__(self, x=0, y=0, z=0, height_limit=False, down=False, button=0, bounds=(600, 600, 800), influence=5, cut=10):
+    def __init__(self, x=0, y=0, z=0, height_limit=False, down=False,
+                 button=0, bounds=(600, 600, 800), influence=5, cut=10):
         self.down = down
         self.button = button
         self.x, self.y, self.z = x, y, z

@@ -24,3 +24,7 @@ build/*
 calibration_data/*
 experiment_data/*
 robotshapes/*
+
+
+*.swp
+*.swo
