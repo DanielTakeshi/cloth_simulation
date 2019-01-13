@@ -54,8 +54,8 @@ if __name__ == "__main__":
     # animation appears constant. (But the center now has the lowest
     # z-coordinate value, it's not zero.) Just the way matplotlib views it.
     # --------------------------------------------------------------------------
-    #c.pin_position(circlex, circley)
-    #tensioner = c.tensioners[0]
+    c.pin_position(circlex, circley)
+    tensioner = c.tensioners[0]
 
     plt.ion() # Interactive
 

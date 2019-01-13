@@ -4,18 +4,23 @@ This repository contains scripts used to simulate cloth physics in 3D under vari
 
 Questions to consider and possible TODOs:
 
+- Why is elasticity implemented the way it is, and why does it work?
 - Gravity constant seems very arbitrary, not sure how accurate it has to be for
   physics modeling if we're using the z coordinate?
 - Why not diagonal constraints? I thought that would cause a collapse? Update:
   it does, if you only pin one side, it makes the cloth collapse! Will need to
   add diagonal constraints.
-- What's with vx, vy, vz? Seems like that contains the acceleration term needed
-  for Verlet integration? (Update: looks like it's a naming error, it's clearly
-  acceleration.)
 - How can we support actions like grasping and pulling? How can we adapt the
   tension code so that it correctly lifts the points and then pulls, so we have
   overlap?
-- Better 3D viewer?
+- Better 3D viewer? That would help the above.
+
+Resolved:
+
+- What's with vx, vy, vz? Seems like that contains the acceleration term needed
+  for Verlet integration? (Update: looks like it's a naming error, it's clearly
+  acceleration.)
+- The constant of 0.016 for `pt.update(0.016)` was simply hand-tuned.
 
 
 ## Files, Scripts, and Directories:
