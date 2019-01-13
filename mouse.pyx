@@ -30,11 +30,12 @@ class Mouse(object):
         """
         if not z:
             z = self.z
-        if 0 <= x <= self.bounds[0] and 0 <= y <= self.bounds[1] and -self.bounds[2] <= z <= self.bounds[2]:
+        if 0 <= x <= self.bounds[0] and 0 <= y <= self.bounds[1] and \
+                    -self.bounds[2] <= z <= self.bounds[2]:
             self.px, self.py = self.x, self.y
             self.x, self.y = x, y
         else:
-            print "Invalid location: Out of Bounds."
+            print("Invalid location: Out of Bounds.")
 
 
     def clicked(self, event):

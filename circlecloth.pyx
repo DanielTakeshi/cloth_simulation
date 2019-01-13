@@ -24,9 +24,8 @@ class CircleCloth(Cloth):
           here ... the visual is clearly 600x600 and we ignore z, all points
           have z=0 at start.
         - Have a fixed circle shape and we check if absolute distance from point
-          to the center is close to the radius. Remember, distances over our
-          cordinate ranges!
-        - When we create points, we create an offset of 50 in the x and y
+          to the center is close to the radius.
+        - When we create points, we use an offset of 50 in the x and y
           direction, for making a gap. The origin is in the bottom left, bottom
           right of the visual, and the x-axis corresponds to the bottom row,
           y-axis corresonds to leftmost column, good. Surprisingly, if I don't
@@ -50,10 +49,18 @@ class CircleCloth(Cloth):
           list; not sure about the 'other' point? I think not, which saves 2x
           memory on storing duplicate constraints. I also think each constraint
           is a simple spring mass model with friction.
+        - `self.tensioners` has tensions, we add one at the beginning to keep
+          the center of the gauze fixed, which is what a surgical robot would do
+          (better to keep it fixed than to try and move), and we add more
+          `pt.pinned=True` stuff.
 
         To make this rest on a table-like object, we should enforce a minimum
         z-coordinate limit. The z-coordinate naturally decreases (before
         stabilizing) as simulation proceeds due to gravity.
+
+        Main difference with this and superclass is that we track circle points
+        specifically, so we can visulize them later (and also to determine if a
+        cutting point is close to the circle).
         """
         self.pts = []
         self.shapepts = []

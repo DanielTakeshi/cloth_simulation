@@ -67,7 +67,7 @@ class Point(object):
 
     def update(self, delta):
         """ APPLY VERLET INTEGRATION. Updates the point, takes in mouse input.
-        Applies gravitational force to it; parameter can be tuned for varying results.
+        Applies gravitational force; parameter can be tuned for varying results.
         The 0.99 here is friction, same as (1-damping) with damping = 0.01.
 
         Difference with some cloth sim code online is that we have to consider
@@ -81,7 +81,8 @@ class Point(object):
         constraints. Then, resolving constraints during next cloth update will
         remove the points.
 
-        The delta is the time step. Brijen selected as 0.016?
+        The delta is the time step. Brijen selected as 0.016? Ah, he informally
+        tuned it.
         """
         if self.mouse.down:
             dx = self.x - self.mouse.x
@@ -94,7 +95,7 @@ class Point(object):
                     self.px = self.x - (self.mouse.x - self.mouse.px) * 1.8
                     self.py = self.y - (self.mouse.y - self.mouse.py) * 1.8
             elif dist < self.mouse.cut and abs(dz) < self.mouse.height_limit:
-                print("  dist = {:.1f} < mouse.cut !!".format(dist))
+                #print("  dist = {:.1f} < mouse.cut !!".format(dist))
                 self.constraints = []
 
         self.add_force(0, 0, self.gravity)

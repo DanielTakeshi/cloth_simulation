@@ -46,6 +46,14 @@ if __name__ == "__main__":
         print("Done, hopefully at equilibrium, now do simulation...")
 
     # Simulate grabbing the gauze
+    # --------------------------------------------------------------------------
+    # Daniel: _this_ is why the (300,300) point by default has z-coordinate of
+    # 0, because we asssume we have a tool which pinched it at that point! If
+    # you enable this, the cloth animation appears to 'shink' towards (300,300)
+    # due to tension pulling stuff there, but if we comment it out, the cloth
+    # animation appears constant. (But the center now has the lowest
+    # z-coordinate value, it's not zero.) Just the way matplotlib views it.
+    # --------------------------------------------------------------------------
     c.pin_position(circlex, circley)
 
     plt.ion() # Interactive
