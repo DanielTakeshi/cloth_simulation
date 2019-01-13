@@ -100,14 +100,20 @@ class Point(object):
 
         self.add_force(0, 0, self.gravity)
 
-        # Verlet integration
+        # ----------------------------------------------------------------------
+        # Verlet integration (note the delta^2). If only one of the sides is
+        # pinned, the sheet gradually moves towards the pinned side (it
+        # collapses, it's a known fact in cloth simulation). Lowering the
+        # `friction` constant translates to slower movement.
+        # ----------------------------------------------------------------------
+        friction = 0.99
         delta *= delta
-        nx = self.x + ((self.x - self.px)) * 0.99 + ((self.vx / 2.0) * delta) + np.random.randn() * self.noise
-        ny = self.y + ((self.y - self.py)) * 0.99 + ((self.vy / 2.0) * delta) + np.random.randn() * self.noise
-        nz = self.z +                               ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
+        nx = self.x + (self.x - self.px) * friction + ((self.vx / 2.0) * delta) + np.random.randn() * self.noise
+        ny = self.y + (self.y - self.py) * friction + ((self.vy / 2.0) * delta) + np.random.randn() * self.noise
+        nz = self.z +                                 ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
 
         self.px, self.py, self.pz = self.x, self.y, self.z
-        self.x, self.y, self.z = nx, ny, nz
+        self.x,  self.y,  self.z  = nx, ny, nz
         self.vx, self.vy, self.vz = 0, 0, 0
 
         if self.noise:

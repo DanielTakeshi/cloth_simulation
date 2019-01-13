@@ -4,7 +4,6 @@ from cloth import *
 """
 A Tensioner grabs a circular region of cloth and fixes it in place.
 It can then tug on the cloth in a particular direction.
-(D: how can I test this?)
 """
 class Tensioner(object):
 
@@ -23,7 +22,10 @@ class Tensioner(object):
 
 
     def pin_position(self, x, y):
-        """Grab a position on the cloth and pin it in place (pin nearby points).
+        """Grab a position on the cloth and pin it in place.
+        
+        It pins points within a small radius, so in the visual it looks like a
+        circular set of points moving around.
         
         This is why the points have z-axis 0 because we make it `pt.pinned`,
         like the top and bottom rows of the cloth. Note that this is a hard

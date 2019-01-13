@@ -73,6 +73,8 @@ class CircleCloth(Cloth):
 
         # Use this fxn to simulate cloth pinned along top and bottom.
         if pin_cond == "default":
+            # Don't do this, it will collapse due to no shear constraints
+            #pin_cond = lambda x, y, height, width: y == height - 1
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
 
         for i in range(height):

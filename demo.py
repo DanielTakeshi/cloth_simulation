@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     circlex = 300
     circley = 300
-    radius = 150
+    radius = 150 # only used for 'auto' code
 
     # Careful, changing width/height will add more points but not make it
     # stable; the cloth 'collapses' ... need to investigate code?
@@ -54,7 +54,8 @@ if __name__ == "__main__":
     # animation appears constant. (But the center now has the lowest
     # z-coordinate value, it's not zero.) Just the way matplotlib views it.
     # --------------------------------------------------------------------------
-    c.pin_position(circlex, circley)
+    #c.pin_position(circlex, circley)
+    #tensioner = c.tensioners[0]
 
     plt.ion() # Interactive
 
@@ -65,13 +66,23 @@ if __name__ == "__main__":
         cid = fig.canvas.mpl_connect('button_press_event', mouse.clicked)
         rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
         mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
-    
+   
+
     for i in range(400):
         # Clear the figure
         if i % 10 == 0:
             print("Iteration", i)
         plt.clf()
 
+        # ---------- Daniel: looks cool :-) ----------
+        #if i % 20 == 0:
+        #    print("adding tension...")
+        #    if i < 200:
+        #        tensioner.tension(x=0.5, y=0.5, z=0)
+        #    else:
+        #        tensioner.tension(x=-0.5, y=-0.5, z=0)
+
+        # ----------------------------------------------------------------------
         # Re-insert the points via scatter, w/potentially different colors.
         pts  = np.array([[p.x, p.y] for p in c.normalpts])
         cpts = np.array([[p.x, p.y] for p in c.shapepts])
@@ -84,10 +95,10 @@ if __name__ == "__main__":
         # ax.set_axis_bgcolor('white')
         plt.pause(0.01)
         c.update()
-        
         # Extra updates to allow cloth to respond to environment.
         for j in range(5):
             c.update()
+        # ----------------------------------------------------------------------
 
         # simulate moving the mouse in a circle while cutting, overcut since no perception
         if auto:
