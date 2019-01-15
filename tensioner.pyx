@@ -40,10 +40,12 @@ class Tensioner(object):
     def unpin_position(self):
         """Let go of a grabbed position, and remove the current tensioner.
         """
+        if len(self.grabbed_pts) == 0:
+            print("Note: attemtping to unpin a tensioner that has no grabbed points...")
         for pt in self.grabbed_pts:
             pt.pinned = False
         self.grabbed_pts = []
-        self.cloth.remove(self)
+        self.cloth.remove_tensioner(self)
 
 
     def tension(self, x, y, z=0):
@@ -61,7 +63,8 @@ class Tensioner(object):
         tensioner, we extract the (x,y,z) values and increment by the tension,
         after setting those to be previous (x,y,z) of course.
         """
-        if np.linalg.norm([self.x - self.origx + x, self.y - self.origy + y, self.dz + z]) > self.max_displacement:
+        _diff = [self.x - self.origx + x, self.y - self.origy + y, self.dz + z]
+        if np.linalg.norm(_diff) > self.max_displacement:
             return
         for pt in self.grabbed_pts:
             pt.px, pt.py, pt.pz = pt.x, pt.y, pt.z

@@ -66,6 +66,10 @@ class Cloth(object):
     def add_tensioner(self, tensioner):
         self.tensioners.append(tensioner)
 
+    def remove_tensioner(self, tensioner):
+        if tensioner in self.tensioners:
+            self.tensioners.remove(tensioner)
+
 
     def pin_position(self, x, y, max_displacement=False):
         """Grab a position on the cloth and pin it in place.
@@ -77,6 +81,9 @@ class Cloth(object):
 
     def unpin_position(self, x, y):
         """Let go of a position held by a tensioner.
+
+        Daniel: some duplicate code, also this removes tensioners on the CURRENT
+        x,y but it's easier if it refers to the original x and y...
         """
         for tensioner in tensioners:
             if tensioner.x == x and tensioner.y == y:

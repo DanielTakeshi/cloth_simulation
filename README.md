@@ -203,6 +203,23 @@ expected behavior, nothing standing in 'midair':
 ![](figs/clothsim-better-gravity.png)
 
 
-### Gripping
+### Gripping and Tensioning
 
-In progress!
+(To start testing, I am simply using the `Tensioner` class since it's already
+there, but I will switch to a new `Gripper` class shortly.)
+
+When I only pin 
+
+```
+c = CircleCloth(mouse, width=50, height=50, elasticity=0.01, minimum_z=-20.0, gravity=-1000)
+```
+
+and have tensioning code to go up and then go to the lower left corner (and then
+un-tensioning, i.e., dropping it) I get:
+
+![](figs/clothsim-overlap-no-intra-constraints.png)
+
+Huh, this isn't bad! The cloth is actually stable in this position. Though, the
+cloth points share the same z-axis since there are no collision constraints, I
+think. The constraints here are only for (a) tear distance, and (b) normal
+Hooke's law. For extra constraints, see the CS 184 project website.

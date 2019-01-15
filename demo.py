@@ -16,34 +16,52 @@ from mpl_toolkits.mplot3d import Axes3D
 from gripper import Gripper
 
 
-def cut(mouse):
-    """If you want to let the cloth settle, just run `c.update()` before doing
-    anything, as often as you want.
-
-    Careful, changing width/height will add more points but not make it stable;
-    the cloth 'collapses' ... need to investigate code?
+def circle():
+    """simulate moving the mouse in a circle while cutting, overcut since no perception
+    (Deprecated, old code...)
     """
     circlex = 300
     circley = 300
-    radius = 150 # only used for 'auto' code
+    radius = 150
+    if i < 150:
+        theta = 360.0/100.0 * i * np.pi / 180.0
+        x = radius * np.cos(theta)
+        y = radius * np.sin(theta)
+        mouse.move(x + circlex, y + circley)
 
-    c = CircleCloth(mouse, width=50, height=50, elasticity=0.1, minimum_z=-50.0,
-                    gravity=-100)
+
+def pull(i, tensioner):
+    """Looks cool. Feel free to adjust...
+    """
+    if i % 10 == 0:
+        if i < 40:
+            tensioner.tension(x=0.0, y=0.0, z=0.1)
+        elif i < 140:
+            tensioner.tension(x=-0.5, y=-0.5, z=0.0)
+        else:
+            tensioner.unpin_position()
+
+
+def cut(mouse):
+    """If you want to let the cloth settle, just run `c.update()` beforehand.
+
+    Careful, changing width/height will add more points but not make it stable;
+    the cloth 'collapses' ... need to investigate code?
+
+    For tensioning, wherever tension it by default has z-coordinate of 0,
+    because we assume a tool has pinched it at that point.
+    """
+    c = CircleCloth(mouse, width=50, height=50, elasticity=0.01, minimum_z=-20.0,
+                    gravity=-1000)
     grip = Gripper(cloth=c)
-
-    # Simulate grabbing the gauze via tensioning
-    # --------------------------------------------------------------------------
-    # Daniel: _this_ is why the (300,300) point by default has z-coordinate of
-    # 0, because we asssume we have a tool which pinched it at that point! If
-    # you enable this, the cloth animation appears to 'shink' towards (300,300)
-    # but it's actually just tension. Look at the 3D plot!
-    # --------------------------------------------------------------------------
-    #c.pin_position(circlex, circley)
-    #tensioner = c.tensioners[0]
+    circlex = 540
+    circley = 540
+    c.pin_position(circlex, circley)
+    tensioner = c.tensioners[0]
 
     # Use `plt.ion()` for interactive plots, requires `plt.pause(...)` later.
     nrows, ncols = 1, 2
-    fig = plt.figure(figsize=(10*ncols,10*nrows))
+    fig = plt.figure(figsize=(12*ncols,12*nrows))
     ax1 = fig.add_subplot(1, 2, 1)
     ax2 = fig.add_subplot(1, 2, 2, projection='3d')
     plt.ion()
@@ -52,20 +70,12 @@ def cut(mouse):
     rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
     mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
 
-    for i in range(400):
-        # Clear the figure
+    for i in range(500):
         if i % 10 == 0:
             print("Iteration", i)
         ax1.cla()
         ax2.cla()
-
-        ## # ---------- Daniel: looks cool :-) ----------
-        ## if i % 20 == 0:
-        ##     print("adding tension...")
-        ##     if i < 200:
-        ##         tensioner.tension(x=0.5, y=0.5, z=0)
-        ##     else:
-        ##         tensioner.tension(x=-0.5, y=-0.5, z=0)
+        pull(i, tensioner)
 
         # ----------------------------------------------------------------------
         # Re-insert the points, with appropriate colors. 2D AND 3D together.
@@ -78,21 +88,14 @@ def cut(mouse):
         if len(cpts) > 0:
             ax1.scatter(cpts[:,0], cpts[:,1], c='b')
             ax2.scatter(cpts[:,0], cpts[:,1], cpts[:,2], c='b')
-        plt.pause(0.01)
+        ax2.set_zlim([-50, 50]) # only for visualization purposes
+        plt.pause(0.001)
         # ----------------------------------------------------------------------
 
         # Updates (+5 extra) to allow cloth to respond to environment.
         c.update()
         for j in range(5):
             c.update()
-
-    ### simulate moving the mouse in a circle while cutting, overcut since no perception
-    ##if auto:
-    ##    if i < 150:
-    ##        theta = 360.0/100.0 * i * np.pi / 180.0
-    ##        x = radius * np.cos(theta)
-    ##        y = radius * np.sin(theta)
-    ##        mouse.move(x + circlex, y + circley)
 
     fig.canvas.mpl_disconnect(cid)
     fig.canvas.mpl_disconnect(mid)
