@@ -27,7 +27,8 @@ def cut(auto, mouse):
     circley = 300
     radius = 150 # only used for 'auto' code
 
-    c = CircleCloth(mouse, width=50, height=50, elasticity=0.1, minimum_z=-50.0)
+    c = CircleCloth(mouse, width=50, height=50, elasticity=0.1, minimum_z=-50.0,
+                    gravity=-10)
     grip = Gripper(cloth=c)
 
     # Simulate grabbing the gauze
@@ -46,9 +47,11 @@ def cut(auto, mouse):
     plt.ion()
 
     if not auto:
-        fig = plt.figure()
-        plot = fig.add_subplot(111)
-        plot.set_title('manual')
+        fig, _  = plt.subplots(figsize=(12,12))
+        fig1, ax1 = plt.subplots(figsize=(12,12))
+        #plot  = fig.add_subplot(111)
+        #plot1 = fig1.add_subplot(111)
+        #plot.set_title('manual')
         cid = fig.canvas.mpl_connect('button_press_event', mouse.clicked)
         rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
         mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
@@ -59,13 +62,13 @@ def cut(auto, mouse):
             print("Iteration", i)
         plt.clf()
 
-        # ---------- Daniel: looks cool :-) ----------
-        if i % 20 == 0:
-            print("adding tension...")
-            if i < 200:
-                tensioner.tension(x=0.5, y=0.5, z=0)
-            else:
-                tensioner.tension(x=-0.5, y=-0.5, z=0)
+        ## # ---------- Daniel: looks cool :-) ----------
+        ## if i % 20 == 0:
+        ##     print("adding tension...")
+        ##     if i < 200:
+        ##         tensioner.tension(x=0.5, y=0.5, z=0)
+        ##     else:
+        ##         tensioner.tension(x=-0.5, y=-0.5, z=0)
 
         ## # ----------------------------------------------------------------------
         ## # Re-insert the points via scatter, w/potentially different colors.
@@ -82,14 +85,17 @@ def cut(auto, mouse):
         ## # ----------------------------------------------------------------------
 
         # ----------------------------------------------------------------------
-        # Try 3d plot?
+        # Try 3d plot? And get 2d plot on ax1???
         ax = Axes3D(fig)
         pts  = np.array([[p.x, p.y, p.z] for p in c.normalpts])
         cpts = np.array([[p.x, p.y, p.z] for p in c.shapepts])
         if len(pts) > 0:
             ax.scatter(pts[:,0], pts[:,1], pts[:,2], c='g')
+            ax1.scatter(pts[:,0], pts[:,1], c='g')
         if len(cpts) > 0:
             ax.scatter(cpts[:,0], cpts[:,1], cpts[:,2], c='b')
+            ax1.scatter(cpts[:,0], cpts[:,1], c='b')
+        ax1.set_title('title not working?')
         plt.axis([0, 600, 0, 600])
         plt.pause(0.01)
         # ----------------------------------------------------------------------
