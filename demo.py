@@ -1,3 +1,8 @@
+"""
+This script contains a demo that can be run out of the box.
+If provided w/the 'manual' argument, the user can control position of the cutting tool.
+If this file is modified, you don't need to re-compile/build the cython code.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -8,43 +13,22 @@ from point import *
 from constraint import *
 from util import *
 from mpl_toolkits.mplot3d import Axes3D
-"""
-This script contains a demo that can be run out of the box.
-If provided w/the 'manual' argument, the user can control position of the cutting tool.
-If this file is modified, you don't need to re-compile/build the cython code.
-"""
+from gripper import Gripper
 
-if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "manual":
-        print("Manual cutting")
-        auto = False
-    else:
-        print("Automated cutting")
-        auto = True
 
-    # Originally mouse.down = True but I think it's better as False.
-    mouse = Mouse()
-    mouse.down = False
-    mouse.button = 0
+def cut(auto, mouse):
+    """If you want to let the cloth settle, just run `c.update()` before doing
+    anything, as often as you want.
 
+    Careful, changing width/height will add more points but not make it stable;
+    the cloth 'collapses' ... need to investigate code?
+    """
     circlex = 300
     circley = 300
     radius = 150 # only used for 'auto' code
 
-    # Careful, changing width/height will add more points but not make it
-    # stable; the cloth 'collapses' ... need to investigate code?
-    c = CircleCloth(mouse, width=50, height=50, elasticity=1.0, minimum_z=-50.0)
-
-    # Setting as false, we can run in manual mode and avoid clicking, which
-    # means the cloth will update on its own (for gravity).
-    run_equilibrium = False
-    if run_equilibrium:
-        print("Letting the cloth reach equilibrium...")
-        for i in range(100):
-            c.update()
-            if i % 10 == 0:
-                print("initial iteration", i)
-        print("Done, hopefully at equilibrium, now do simulation...")
+    c = CircleCloth(mouse, width=50, height=50, elasticity=0.1, minimum_z=-50.0)
+    grip = Gripper(cloth=c)
 
     # Simulate grabbing the gauze
     # --------------------------------------------------------------------------
@@ -55,8 +39,8 @@ if __name__ == "__main__":
     # animation appears constant. (But the center now has the lowest
     # z-coordinate value, it's not zero.) Just the way matplotlib views it.
     # --------------------------------------------------------------------------
-    #c.pin_position(circlex, circley)
-    #tensioner = c.tensioners[0]
+    c.pin_position(circlex, circley)
+    tensioner = c.tensioners[0]
 
     # Use `plt.ion()` for interactive plots, requires `plt.pause(...)` later.
     plt.ion()
@@ -76,12 +60,12 @@ if __name__ == "__main__":
         plt.clf()
 
         # ---------- Daniel: looks cool :-) ----------
-        #if i % 20 == 0:
-        #    print("adding tension...")
-        #    if i < 200:
-        #        tensioner.tension(x=0.5, y=0.5, z=0)
-        #    else:
-        #        tensioner.tension(x=-0.5, y=-0.5, z=0)
+        if i % 20 == 0:
+            print("adding tension...")
+            if i < 200:
+                tensioner.tension(x=0.5, y=0.5, z=0)
+            else:
+                tensioner.tension(x=-0.5, y=-0.5, z=0)
 
         ## # ----------------------------------------------------------------------
         ## # Re-insert the points via scatter, w/potentially different colors.
@@ -127,3 +111,18 @@ if __name__ == "__main__":
         fig.canvas.mpl_disconnect(cid)
         fig.canvas.mpl_disconnect(mid)
         fig.canvas.mpl_disconnect(rid)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "manual":
+        print("Manual cutting")
+        auto = False
+    else:
+        print("Automated cutting")
+        auto = True
+    # Originally mouse.down = True but I think it's better as False.
+    mouse = Mouse()
+    mouse.down = False
+    mouse.button = 0
+
+    cut(auto, mouse)

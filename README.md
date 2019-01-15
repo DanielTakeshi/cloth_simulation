@@ -150,3 +150,27 @@ Ah, I changed the minimum z axis to be very low. Without any elasticity (setting
 it to 0) then this will cause points to tear, because they simply go straight
 down due to gravity, and will soon exceed the `tear_dist` threshold that we set.
 With elasticity, this allows for 'flexibility' and 'spring-like' behavior.
+
+
+### Tensioning
+
+Using standard settings as earlier, with min z coordinate of 50 and diagonal
+constraints, I tried the tensioning code to grip the center, then move to the
+upper left corner, then back to the lower left. Here are two attempts with
+different elasticity terms:
+
+Elasticity 1.0:
+
+![](figs/cloth-sim-tension.png)
+
+Elasticity 0.1:
+
+![](figs/cloth-sim-tension-v2.png)
+
+So, elasticity of 1.0 seems way too unstable, we're seeing points go *above*
+z=0.0??? Fortunately elasticity 0.1 seems appropriate.
+
+
+### Gripping
+
+In progress!

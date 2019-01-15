@@ -78,7 +78,7 @@ class CircleCloth(Cloth):
         # Use this fxn to simulate cloth pinned along top and bottom.
         # If only pinning one row, then I get a collapse without shear constraints.
         if pin_cond == "default":
-            #pin_cond = lambda x, y, height, width: y == 0
+            ####pin_cond = lambda x, y, height, width: y == 0
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
 
         for i in range(height):
