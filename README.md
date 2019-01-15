@@ -94,3 +94,20 @@ Dependencies that are only required for specific scripts in the repository, but 
 * OpenAI Gym
 * ROS
 * dvrk_utils
+
+
+
+
+## Figures
+
+
+Brijen used elasticity of 1.0 by default. If you do 0.0, the structure appears
+very rigid with and without diagonal constraints (assuming diagonal constraints
+were implemented correctly...):
+
+![](figs/cloth-elasticity-0.0.png)
+
+and if it's 2.0 it collapses, with and without the same diagonal constraints.
+
+
+![](figs/cloth-elasticity-2.0.png)

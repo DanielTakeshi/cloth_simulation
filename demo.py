@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     # Careful, changing width/height will add more points but not make it
     # stable; the cloth 'collapses' ... need to investigate code?
-    c = CircleCloth(mouse, width=50, height=50)
+    c = CircleCloth(mouse, width=50, height=50, elasticity=1.0)
 
     # Setting as false, we can run in manual mode and avoid clicking, which
     # means the cloth will update on its own (for gravity).
@@ -54,8 +54,8 @@ if __name__ == "__main__":
     # animation appears constant. (But the center now has the lowest
     # z-coordinate value, it's not zero.) Just the way matplotlib views it.
     # --------------------------------------------------------------------------
-    c.pin_position(circlex, circley)
-    tensioner = c.tensioners[0]
+    #c.pin_position(circlex, circley)
+    #tensioner = c.tensioners[0]
 
     plt.ion() # Interactive
 
@@ -66,7 +66,6 @@ if __name__ == "__main__":
         cid = fig.canvas.mpl_connect('button_press_event', mouse.clicked)
         rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
         mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
-   
 
     for i in range(400):
         # Clear the figure

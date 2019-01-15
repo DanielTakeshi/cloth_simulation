@@ -71,10 +71,13 @@ class CircleCloth(Cloth):
             mouse = Mouse(bounds=bounds)
         self.mouse = mouse
 
+        # Should we multiply sqrt(2) to thresh dist? 100 is normal thresh dist.
+        diag_dist = 100 * np.sqrt(2)
+
         # Use this fxn to simulate cloth pinned along top and bottom.
+        # If only pinning one row, then I get a collapse without shear constraints.
         if pin_cond == "default":
-            # Don't do this, it will collapse due to no shear constraints
-            #pin_cond = lambda x, y, height, width: y == height - 1
+            #pin_cond = lambda x, y, height, width: y == 0
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
 
         for i in range(height):
@@ -86,19 +89,42 @@ class CircleCloth(Cloth):
                            gravity=gravity,
                            elasticity=elasticity,
                            bounds=bounds)
+
+                # Constraint, current pt and the pt below it, except for bottom-most row
                 if i > 0:
-                    pt.add_constraint(self.pts[width * (i - 1) + j])
+                    idx = width * (i-1) + j
+                    pt.add_constraint(self.pts[idx])
+
+                # Constraint, current pt and the pt to its left, except for leftmost column
                 if j > 0:
                     pt.add_constraint(self.pts[-1])
+
+                # Not sure if these are working as intended? Do we actually have
+                # a Hooke's law in the constraints? Seems different?
+
+                # Diagonal constraint 1, pt and the pt to lower left
+                if j > 0 and i > 0:
+                    idx = width * (i-1) + j - 1
+                    pt.add_constraint(self.pts[idx], tear_dist=diag_dist)
+
+                # Diagonal constraint 2, pt and the pt to lower right
+                if j < width-1 and i > 0:
+                    idx = width * (i-1) + j + 1
+                    pt.add_constraint(self.pts[idx], tear_dist=diag_dist)
+
+                # Pin some points according to `pin_cond`.
                 if pin_cond(j, i, height, width):
                     pt.pinned = True
+
                 if abs((pt.x - centerx) **2 + (pt.y - centery) ** 2 - radius **2) < 2000:
                     self.shapepts.append(pt)
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
+
         self.pts, self.normalpts, self.shapepts = set(self.pts), set(self.normalpts), set(self.shapepts)
-        self.initial_params = [(width, height), (dx, dy), (centerx, centery, radius), gravity, elasticity, pin_cond]
+        self.initial_params = [(width, height), (dx, dy), (centerx, centery, radius),
+                               gravity, elasticity, pin_cond]
 
 
     def update(self):

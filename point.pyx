@@ -29,10 +29,12 @@ class Point(object):
         self.debug = debug
 
 
-    def add_constraint(self, pt):
+    def add_constraint(self, pt, tear_dist=100):
         """Adds a constraint between this point and another point.
         """
-        self.constraints.append(Constraint(self, pt, elasticity=self.elasticity))
+        self.constraints.append(
+            Constraint(self, pt, tear_dist=tear_dist, elasticity=self.elasticity)
+        )
 
 
     def add_force(self, x, y, z=0):
@@ -114,6 +116,11 @@ class Point(object):
 
         self.px, self.py, self.pz = self.x, self.y, self.z
         self.x,  self.y,  self.z  = nx, ny, nz
+
+        # ----------------------------------------------------------------------
+        # The CS 184 class says to reset forces. I think that's what this does.
+        # https://cs184.eecs.berkeley.edu/sp18/article/35
+        # ----------------------------------------------------------------------
         self.vx, self.vy, self.vz = 0, 0, 0
 
         if self.noise:

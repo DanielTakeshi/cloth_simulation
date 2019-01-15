@@ -11,7 +11,9 @@ class Constraint(object):
         """
         Constraint between two points that attempts to maintain a fixed distance
         between points and tears if a threshold is passed. AH, `self.length` is
-        the distance originally set ...
+        the distance originally set ... I _think_ this will still work with
+        diagonal constraints because self.length will be longer. But, should we
+        multiply the tear distance by a factor of sqrt(2)?
 
         In demo code, p1 is either below p2 (lower y value) or to the left of p2
         (lower x value). It's only one of these; we don't have diagonal
