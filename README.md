@@ -138,3 +138,15 @@ and with diag:
 The cloth is slightly more 'stretched' with the diagonal one by looking at the
 y-coordinates, and these were taken at similar iterations, with elasticity of
 1.0 and minimum z of -50.
+
+### 3D and Elasticity
+
+If you make elasticity of 0.0, then you don't get any of the points at
+intermediate heights between 0 and -50, for some reason, the points just go
+straight down to the -50 z axis coordinate. So, elasticity of 1.0 is helpful.
+Happens with and without diagonal constraints.
+
+Ah, I changed the minimum z axis to be very low. Without any elasticity (setting
+it to 0) then this will cause points to tear, because they simply go straight
+down due to gravity, and will soon exceed the `tear_dist` threshold that we set.
+With elasticity, this allows for 'flexibility' and 'spring-like' behavior.

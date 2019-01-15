@@ -113,7 +113,8 @@ class Point(object):
         # Verlet integration (note the delta^2). If only one of the sides is
         # pinned, the sheet gradually moves towards the pinned side (it
         # collapses, it's a known fact in cloth simulation). Lowering the
-        # `friction` constant translates to slower movement.
+        # `friction` constant translates to slower movement. Update: some of
+        # this is outdated now that I have 3D visuals to help me out.
         # ----------------------------------------------------------------------
         friction = 0.99
         delta *= delta
