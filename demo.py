@@ -7,6 +7,7 @@ from mouse import *
 from point import *
 from constraint import *
 from util import *
+from mpl_toolkits.mplot3d import Axes3D
 """
 This script contains a demo that can be run out of the box.
 If provided w/the 'manual' argument, the user can control position of the cutting tool.
@@ -32,7 +33,7 @@ if __name__ == "__main__":
 
     # Careful, changing width/height will add more points but not make it
     # stable; the cloth 'collapses' ... need to investigate code?
-    c = CircleCloth(mouse, width=50, height=50, elasticity=1.0)
+    c = CircleCloth(mouse, width=50, height=50, elasticity=1.0, minimum_z=-50.0)
 
     # Setting as false, we can run in manual mode and avoid clicking, which
     # means the cloth will update on its own (for gravity).
@@ -57,7 +58,8 @@ if __name__ == "__main__":
     #c.pin_position(circlex, circley)
     #tensioner = c.tensioners[0]
 
-    plt.ion() # Interactive
+    # Use `plt.ion()` for interactive plots, requires `plt.pause(...)` later.
+    plt.ion()
 
     if not auto:
         fig = plt.figure()
@@ -81,23 +83,37 @@ if __name__ == "__main__":
         #    else:
         #        tensioner.tension(x=-0.5, y=-0.5, z=0)
 
+        ## # ----------------------------------------------------------------------
+        ## # Re-insert the points via scatter, w/potentially different colors.
+        ## pts  = np.array([[p.x, p.y] for p in c.normalpts])
+        ## cpts = np.array([[p.x, p.y] for p in c.shapepts])
+        ## if len(pts) > 0:
+        ##     plt.scatter(pts[:,0], pts[:,1], c='g')
+        ## if len(cpts) > 0:
+        ##     plt.scatter(cpts[:,0], cpts[:,1], c='b')
+        ## ax = plt.gca()
+        ## plt.axis([0, 600, 0, 600])
+        ## # ax.set_axis_bgcolor('white')
+        ## plt.pause(0.01)
+        ## # ----------------------------------------------------------------------
+
         # ----------------------------------------------------------------------
-        # Re-insert the points via scatter, w/potentially different colors.
-        pts  = np.array([[p.x, p.y] for p in c.normalpts])
-        cpts = np.array([[p.x, p.y] for p in c.shapepts])
+        # Try 3d plot?
+        ax = Axes3D(fig)
+        pts  = np.array([[p.x, p.y, p.z] for p in c.normalpts])
+        cpts = np.array([[p.x, p.y, p.z] for p in c.shapepts])
         if len(pts) > 0:
-            plt.scatter(pts[:,0], pts[:,1], c='g')
+            ax.scatter(pts[:,0], pts[:,1], pts[:,2], c='g')
         if len(cpts) > 0:
-            plt.scatter(cpts[:,0], cpts[:,1], c='b')
-        ax = plt.gca()
+            ax.scatter(cpts[:,0], cpts[:,1], cpts[:,2], c='b')
         plt.axis([0, 600, 0, 600])
-        # ax.set_axis_bgcolor('white')
         plt.pause(0.01)
+        # ----------------------------------------------------------------------
+
+        # Updates (+5 extra) to allow cloth to respond to environment.
         c.update()
-        # Extra updates to allow cloth to respond to environment.
         for j in range(5):
             c.update()
-        # ----------------------------------------------------------------------
 
         # simulate moving the mouse in a circle while cutting, overcut since no perception
         if auto:

@@ -7,8 +7,7 @@ Questions to consider and possible TODOs:
 - Why is elasticity implemented the way it is, and why does it work?
 - Gravity constant seems very arbitrary, not sure how accurate it has to be for
   physics modeling if we're using the z coordinate?
-- Why not diagonal constraints? I thought that would cause a collapse? Update:
-  it does, if you only pin one side, it makes the cloth collapse! Will need to
+- Why not diagonal constraints? I thought that would cause a collapse? Update: it does, if you only pin one side, it makes the cloth collapse! Will need to
   add diagonal constraints.
 - How can we support actions like grasping and pulling? How can we adapt the
   tension code so that it correctly lifts the points and then pulls, so we have
@@ -100,6 +99,7 @@ Dependencies that are only required for specific scripts in the repository, but 
 
 ## Figures
 
+### Elasticity
 
 Brijen used elasticity of 1.0 by default. If you do 0.0, the structure appears
 very rigid with and without diagonal constraints (assuming diagonal constraints
@@ -109,5 +109,32 @@ were implemented correctly...):
 
 and if it's 2.0 it collapses, with and without the same diagonal constraints.
 
-
 ![](figs/cloth-elasticity-2.0.png)
+
+
+### 3D Minimum Z Coordinate
+
+I managed to get a 3D view. You can rotate these, but it will revert back soon
+due to the constant updating. (Not sure how we can get around that ...)
+
+Here's the view with a minimum z-coordinate of 50, and with elasticity of 1.0
+and with the top and bottom y-coordinate rows pinned (the default). It makes
+sense!
+
+![](figs/cloth-sim-3d-gravity.png)
+
+### 3D Diagonal Constraints
+
+Good news, diagonal constraints seem to make it more resistant to collapse, but
+the effect is not quite as strong as we'd expect. See this without diagonal
+constraints:
+
+![](figs/cloth-3d-no-diag-constraints.png)
+
+and with diag:
+
+![](figs/cloth-3d-with-diag.png)
+
+The cloth is slightly more 'stretched' with the diagonal one by looking at the
+y-coordinates, and these were taken at similar iterations, with elasticity of
+1.0 and minimum z of -50.

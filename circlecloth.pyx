@@ -10,7 +10,8 @@ class CircleCloth(Cloth):
 
     def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10,
                  centerx=300, centery=300, radius=150, gravity=-1000.0,
-                 elasticity=1.0, pin_cond="default", bounds=(600, 600, 800)):
+                 elasticity=1.0, pin_cond="default", bounds=(600, 600, 800),
+                 minimum_z=None):
         """A cloth on which a circle can be drawn.
         It can also be grabbed and tensioned at specific coordinates.
         
@@ -77,15 +78,17 @@ class CircleCloth(Cloth):
         # Use this fxn to simulate cloth pinned along top and bottom.
         # If only pinning one row, then I get a collapse without shear constraints.
         if pin_cond == "default":
-            #pin_cond = lambda x, y, height, width: y == 0
-            pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
+            pin_cond = lambda x, y, height, width: y == 0
+            #pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
 
         for i in range(height):
             for j in range(width):
+                #print("Adding point, (x,y): ({},{})".format(j,i))
                 pt = Point(mouse,
                            x = 50 + dx*j,
                            y = 50 + dy*i,
                            z = 0,
+                           min_z=minimum_z,
                            gravity=gravity,
                            elasticity=elasticity,
                            bounds=bounds)
@@ -99,8 +102,12 @@ class CircleCloth(Cloth):
                 if j > 0:
                     pt.add_constraint(self.pts[-1])
 
+                # --------------------------------------------------------------
                 # Not sure if these are working as intended? Do we actually have
-                # a Hooke's law in the constraints? Seems different?
+                # a Hooke's law in the constraints? Seems different? At least
+                # the resting length makes sense, it's always 10 for structural
+                # constraints and 10*sqrt(2) for diagonals, when I print them.
+                # --------------------------------------------------------------
 
                 # Diagonal constraint 1, pt and the pt to lower left
                 if j > 0 and i > 0:

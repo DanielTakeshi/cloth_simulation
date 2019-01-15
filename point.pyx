@@ -11,13 +11,14 @@ class Point(object):
 
     def __init__(self, mouse, x=0, y=0, z=0, gravity=-1000.0, elasticity=1.0,
                  bounds=(600, 600, 800), shape=0, identity=-1, noise=0,
-                 debug=False):
+                 debug=False, min_z=None):
         """Initializes an instance of a particle.
         """
         self.mouse = mouse
         self.x, self.y, self.z = x, y, z
         self.px, self.py, self.pz = x, y, z
         self.vx, self.vy, self.vz = 0, 0, 0
+        self.min_z = min_z
         self.constraints = []
         self.pinned = False
         self.gravity = gravity
@@ -66,6 +67,12 @@ class Point(object):
         elif self.z <= -boundsz:
             self.z = -2 * boundsz - self.z + np.random.randn() * self.noise
 
+        # Maybe try this? I think this works, though the tricky thing is that
+        # the renderer will make it look like it's 0.12 because that's where it
+        # would have been before this is applied.
+        if self.min_z is not None:
+            self.z = max(self.min_z, self.z)
+
 
     def update(self, delta):
         """ APPLY VERLET INTEGRATION. Updates the point, takes in mouse input.
@@ -112,10 +119,14 @@ class Point(object):
         delta *= delta
         nx = self.x + (self.x - self.px) * friction + ((self.vx / 2.0) * delta) + np.random.randn() * self.noise
         ny = self.y + (self.y - self.py) * friction + ((self.vy / 2.0) * delta) + np.random.randn() * self.noise
-        nz = self.z +                                 ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
+        nz = self.z + (self.z - self.pz) * friction + ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
 
         self.px, self.py, self.pz = self.x, self.y, self.z
         self.x,  self.y,  self.z  = nx, ny, nz
+
+        # Could apply here?
+        if self.min_z is not None:
+            self.z = max(self.min_z, self.z)
 
         # ----------------------------------------------------------------------
         # The CS 184 class says to reset forces. I think that's what this does.
