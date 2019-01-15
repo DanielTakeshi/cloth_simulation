@@ -7,12 +7,9 @@ Questions to consider and possible TODOs:
 - Why is elasticity implemented the way it is, and why does it work?
 - Gravity constant seems very arbitrary, not sure how accurate it has to be for
   physics modeling if we're using the z coordinate?
-- Why not diagonal constraints? I thought that would cause a collapse? Update: it does, if you only pin one side, it makes the cloth collapse! Will need to
-  add diagonal constraints.
 - How can we support actions like grasping and pulling? How can we adapt the
   tension code so that it correctly lifts the points and then pulls, so we have
   overlap?
-- Better 3D viewer? That would help the above.
 
 Resolved:
 
@@ -20,7 +17,13 @@ Resolved:
   for Verlet integration? (Update: looks like it's a naming error, it's clearly
   acceleration.)
 - The constant of 0.016 for `pt.update(0.016)` was simply hand-tuned.
-
+- Why not diagonal constraints? I thought that would cause a collapse? Update:
+  actually I don't think it's necessary because seems like the gravity is strong
+  enough to pull the points downwards. I included these constraints and let's
+  just keep them for completeness.
+- Better 3D viewer? I kind of have one now, with 2D to the left and 3D to the
+  right. With this arrangement, cutting will *still* work as expected with the
+  mouse, because the 3D plot is 'out of range' of the cutting.
 
 ## Files, Scripts, and Directories:
 
@@ -50,6 +53,10 @@ Contains utility functions relating to the scripts and objects in the repository
 
 ### demo.py
 Contains a main method that can be run out of the box to view a demo of the code in action.
+
+(Daniel update: I change the code somewhat, you should still compile it but just
+run the demo without any arguments.)
+
 
 #### To run:
 
@@ -98,6 +105,9 @@ Dependencies that are only required for specific scripts in the repository, but 
 
 
 ## Figures
+
+Here are some figures taken in order of when I implemented or tested certain
+features.
 
 ### Elasticity
 
@@ -169,6 +179,28 @@ Elasticity 0.1:
 
 So, elasticity of 1.0 seems way too unstable, we're seeing points go *above*
 z=0.0??? Fortunately elasticity 0.1 seems appropriate.
+
+
+### Two Views
+
+I finally got two views enabled.  Here they are:
+
+![](figs/clothsim-two-views.png)
+
+And yeah, cutting works! Just click on the leftmost figure. The rightmost figure
+is correctly 'out of bounds'. :-)
+
+But, gravity is weird. Why are some of the points near the cutting region stuck
+in mid-air? Well, I set the gravity constant as -10 when creating the cloth:
+
+```
+c = CircleCloth(mouse, width=50, height=50, elasticity=0.1, minimum_z=-50.0, gravity=-10)
+```
+
+Changing `gravity=-100` (and keeping other settings constant) means we get more
+expected behavior, nothing standing in 'midair':
+
+![](figs/clothsim-better-gravity.png)
 
 
 ### Gripping

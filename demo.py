@@ -16,7 +16,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from gripper import Gripper
 
 
-def cut(auto, mouse):
+def cut(mouse):
     """If you want to let the cloth settle, just run `c.update()` before doing
     anything, as often as you want.
 
@@ -28,39 +28,36 @@ def cut(auto, mouse):
     radius = 150 # only used for 'auto' code
 
     c = CircleCloth(mouse, width=50, height=50, elasticity=0.1, minimum_z=-50.0,
-                    gravity=-10)
+                    gravity=-100)
     grip = Gripper(cloth=c)
 
-    # Simulate grabbing the gauze
+    # Simulate grabbing the gauze via tensioning
     # --------------------------------------------------------------------------
     # Daniel: _this_ is why the (300,300) point by default has z-coordinate of
     # 0, because we asssume we have a tool which pinched it at that point! If
     # you enable this, the cloth animation appears to 'shink' towards (300,300)
-    # due to tension pulling stuff there, but if we comment it out, the cloth
-    # animation appears constant. (But the center now has the lowest
-    # z-coordinate value, it's not zero.) Just the way matplotlib views it.
+    # but it's actually just tension. Look at the 3D plot!
     # --------------------------------------------------------------------------
-    c.pin_position(circlex, circley)
-    tensioner = c.tensioners[0]
+    #c.pin_position(circlex, circley)
+    #tensioner = c.tensioners[0]
 
     # Use `plt.ion()` for interactive plots, requires `plt.pause(...)` later.
+    nrows, ncols = 1, 2
+    fig = plt.figure(figsize=(10*ncols,10*nrows))
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax2 = fig.add_subplot(1, 2, 2, projection='3d')
     plt.ion()
-
-    if not auto:
-        fig, _  = plt.subplots(figsize=(12,12))
-        fig1, ax1 = plt.subplots(figsize=(12,12))
-        #plot  = fig.add_subplot(111)
-        #plot1 = fig1.add_subplot(111)
-        #plot.set_title('manual')
-        cid = fig.canvas.mpl_connect('button_press_event', mouse.clicked)
-        rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
-        mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
+    plt.tight_layout()
+    cid = fig.canvas.mpl_connect('button_press_event', mouse.clicked)
+    rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
+    mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
 
     for i in range(400):
         # Clear the figure
         if i % 10 == 0:
             print("Iteration", i)
-        plt.clf()
+        ax1.cla()
+        ax2.cla()
 
         ## # ---------- Daniel: looks cool :-) ----------
         ## if i % 20 == 0:
@@ -70,33 +67,17 @@ def cut(auto, mouse):
         ##     else:
         ##         tensioner.tension(x=-0.5, y=-0.5, z=0)
 
-        ## # ----------------------------------------------------------------------
-        ## # Re-insert the points via scatter, w/potentially different colors.
-        ## pts  = np.array([[p.x, p.y] for p in c.normalpts])
-        ## cpts = np.array([[p.x, p.y] for p in c.shapepts])
-        ## if len(pts) > 0:
-        ##     plt.scatter(pts[:,0], pts[:,1], c='g')
-        ## if len(cpts) > 0:
-        ##     plt.scatter(cpts[:,0], cpts[:,1], c='b')
-        ## ax = plt.gca()
-        ## plt.axis([0, 600, 0, 600])
-        ## # ax.set_axis_bgcolor('white')
-        ## plt.pause(0.01)
-        ## # ----------------------------------------------------------------------
-
         # ----------------------------------------------------------------------
-        # Try 3d plot? And get 2d plot on ax1???
-        ax = Axes3D(fig)
+        # Re-insert the points, with appropriate colors. 2D AND 3D together.
+        # ----------------------------------------------------------------------
         pts  = np.array([[p.x, p.y, p.z] for p in c.normalpts])
         cpts = np.array([[p.x, p.y, p.z] for p in c.shapepts])
         if len(pts) > 0:
-            ax.scatter(pts[:,0], pts[:,1], pts[:,2], c='g')
             ax1.scatter(pts[:,0], pts[:,1], c='g')
+            ax2.scatter(pts[:,0], pts[:,1], pts[:,2], c='g')
         if len(cpts) > 0:
-            ax.scatter(cpts[:,0], cpts[:,1], cpts[:,2], c='b')
             ax1.scatter(cpts[:,0], cpts[:,1], c='b')
-        ax1.set_title('title not working?')
-        plt.axis([0, 600, 0, 600])
+            ax2.scatter(cpts[:,0], cpts[:,1], cpts[:,2], c='b')
         plt.pause(0.01)
         # ----------------------------------------------------------------------
 
@@ -105,30 +86,23 @@ def cut(auto, mouse):
         for j in range(5):
             c.update()
 
-        # simulate moving the mouse in a circle while cutting, overcut since no perception
-        if auto:
-            if i < 150:
-                theta = 360.0/100.0 * i * np.pi / 180.0
-                x = radius * np.cos(theta)
-                y = radius * np.sin(theta)
-                mouse.move(x + circlex, y + circley)
+    ### simulate moving the mouse in a circle while cutting, overcut since no perception
+    ##if auto:
+    ##    if i < 150:
+    ##        theta = 360.0/100.0 * i * np.pi / 180.0
+    ##        x = radius * np.cos(theta)
+    ##        y = radius * np.sin(theta)
+    ##        mouse.move(x + circlex, y + circley)
 
-    if not auto:
-        fig.canvas.mpl_disconnect(cid)
-        fig.canvas.mpl_disconnect(mid)
-        fig.canvas.mpl_disconnect(rid)
+    fig.canvas.mpl_disconnect(cid)
+    fig.canvas.mpl_disconnect(mid)
+    fig.canvas.mpl_disconnect(rid)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "manual":
-        print("Manual cutting")
-        auto = False
-    else:
-        print("Automated cutting")
-        auto = True
     # Originally mouse.down = True but I think it's better as False.
     mouse = Mouse()
     mouse.down = False
     mouse.button = 0
 
-    cut(auto, mouse)
+    cut(mouse)
