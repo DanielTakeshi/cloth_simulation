@@ -34,9 +34,9 @@ def pull(i, tensioner):
     """Looks cool. Feel free to adjust...
     """
     if i % 10 == 0:
-        if i < 40:
+        if i < 50:
             tensioner.tension(x=0.0, y=0.0, z=0.1)
-        elif i < 140:
+        elif i < 200:
             tensioner.tension(x=-0.5, y=-0.5, z=0.0)
         else:
             tensioner.unpin_position()

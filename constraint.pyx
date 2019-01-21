@@ -35,7 +35,10 @@ class Constraint(object):
         If a point is NOT pinned, then we change its current (x,y,z). Note, p1
         gets added, p2 gets subtracted because of the way we defined delta. In
         both cases the math is: (pt)*(1+diff) - other_pt. (But, I don't get why
-        this formula works...)
+        this formula works...) Though, I know there needs to be some way we
+        'normalize' the distance because we want to conside the change in length
+        as a fraction of the original length, making it independent of our level
+        of discretizaton, though sticking with 50x50 is probably better for now.
 
         In a cloth, we iterate through all points (multiple times!) and for each
         point, we call its method to resolve constraints, which call this. THEN
@@ -50,9 +53,7 @@ class Constraint(object):
         delta[2] = self.p1.z - self.p2.z
         cdef double dist = sqrt(delta[0] ** 2 + delta[1] ** 2 + delta[2] ** 2)
         cdef double diff = (self.length - dist) / float(dist) * 0.5 * self.elasticity
-
-        # Confused: if diff changes so it's (dist - self.length) then we get all
-        # points immediately removed ... 
+        # Confused: why (dist-self.length) doesn't work? Order has to be other way around.
 
         if dist > self.tear_dist:
             self.p1.constraints.remove(self)
