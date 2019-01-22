@@ -54,25 +54,27 @@ class Point(object):
         """
         for constraint in self.constraints:
             constraint.resolve()
-        boundsx, boundsy, boundsz = self.bounds
-        if self.x >= boundsx:
-            self.x = 2 * boundsx - self.x + np.random.randn() * self.noise
-        elif self.x < 1:
-            self.x = 2 - self.x + np.random.randn() * self.noise
-        if self.y >= boundsy:
-            self.y = 2 * boundsy - self.y + np.random.randn() * self.noise
-        elif self.y < 1:
-            self.y = 2 - self.y + np.random.randn() * self.noise
-        if self.z >= boundsz:
-            self.z = 2 * boundsz - self.z + np.random.randn() * self.noise
-        elif self.z <= -boundsz:
-            self.z = -2 * boundsz - self.z + np.random.randn() * self.noise
+        
+        # Daniel: let's not worry about these. Doesn't apply for us.
+        ##boundsx, boundsy, boundsz = self.bounds
+        ##if self.x >= boundsx:
+        ##    self.x = 2 * boundsx - self.x + np.random.randn() * self.noise
+        ##elif self.x < 1:
+        ##    self.x = 2 - self.x + np.random.randn() * self.noise
+        ##if self.y >= boundsy:
+        ##    self.y = 2 * boundsy - self.y + np.random.randn() * self.noise
+        ##elif self.y < 1:
+        ##    self.y = 2 - self.y + np.random.randn() * self.noise
+        ##if self.z >= boundsz:
+        ##    self.z = 2 * boundsz - self.z + np.random.randn() * self.noise
+        ##elif self.z <= -boundsz:
+        ##    self.z = -2 * boundsz - self.z + np.random.randn() * self.noise
 
-        # Maybe try this? I think this works, though the tricky thing is that
-        # the renderer will make it look like it's 0.12 because that's where it
-        # would have been before this is applied.
-        if self.min_z is not None:
-            self.z = max(self.min_z, self.z)
+        ### Maybe try this? I think this works, though the tricky thing is that
+        ### the renderer will make it look like it's 0.12 because that's where it
+        ### would have been before this is applied.
+        ##if self.min_z is not None:
+        ##    self.z = max(self.min_z, self.z)
 
 
     def update(self, delta):
@@ -108,6 +110,8 @@ class Point(object):
                 #print("  dist = {:.1f} < mouse.cut !!".format(dist))
                 self.constraints = []
 
+        # The only uniform external force we'll model is gravity. The other
+        # external force is from the gripper/tensioner.
         self.add_force(0, 0, self.gravity)
 
         # ----------------------------------------------------------------------
@@ -117,16 +121,11 @@ class Point(object):
         # ----------------------------------------------------------------------
         f = self.friction
         delta *= delta
-        nx = self.x + (self.x - self.px) * f + ((self.vx / 2.0) * delta) + np.random.randn() * self.noise
-        ny = self.y + (self.y - self.py) * f + ((self.vy / 2.0) * delta) + np.random.randn() * self.noise
-        nz = self.z + (self.z - self.pz) * f + ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
-
+        nx = self.x + (self.x - self.px) * f + ((self.vx / 2.0) * delta)
+        ny = self.y + (self.y - self.py) * f + ((self.vy / 2.0) * delta)
+        nz = self.z + (self.z - self.pz) * f + ((self.vz / 2.0) * delta)
         self.px, self.py, self.pz = self.x, self.y, self.z
         self.x,  self.y,  self.z  = nx, ny, nz
-
-        # Could apply here?
-        if self.min_z is not None:
-            self.z = max(self.min_z, self.z)
 
         # ----------------------------------------------------------------------
         # The CS 184 class says to reset forces. I think that's what this does.
@@ -135,7 +134,10 @@ class Point(object):
         self.vx, self.vy, self.vz = 0, 0, 0
 
         if self.noise:
-            dx, dy, dz = np.random.randn() * self.noise, np.random.randn() * self.noise, np.random.randn() * self.noise
-            self.x += dx
-            self.y += dy
-            self.z += dz
+            self.x += (np.random.randn() * self.noise)
+            self.y += (np.random.randn() * self.noise)
+            self.z += (np.random.randn() * self.noise)
+
+        # Makes sense to do this after Verlet, mirroring CS 184.
+        if self.min_z is not None:
+            self.z = max(self.min_z, self.z)

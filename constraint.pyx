@@ -52,7 +52,7 @@ class Constraint(object):
         delta[1] = self.p1.y - self.p2.y
         delta[2] = self.p1.z - self.p2.z
         cdef double dist = sqrt(delta[0] ** 2 + delta[1] ** 2 + delta[2] ** 2)
-        cdef double diff = (self.length - dist) / float(dist) * 0.5 * self.elasticity
+        cdef double diff = ((self.length - dist) / float(dist)) * 0.5 * self.elasticity
         # Confused: why (dist-self.length) doesn't work? Order has to be other way around.
 
         if dist > self.tear_dist:

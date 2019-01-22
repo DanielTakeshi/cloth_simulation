@@ -87,7 +87,7 @@ class ShapeCloth(Cloth):
 
 
 
-    def update(self):
+    def simulate(self):
         """
         Update function updates the state of the cloth after a time step.
         """

@@ -93,10 +93,11 @@ def cut(mouse):
         plt.pause(0.001)
         # ----------------------------------------------------------------------
 
-        # Updates (+5 extra) to allow cloth to respond to environment.
-        c.update()
+        # Updates (+5 extra) to allow cloth to respond to environment. Think of
+        # it as like a 'frame skip' parameter.
+        c.simulate()
         for j in range(5):
-            c.update()
+            c.simulate()
 
     fig.canvas.mpl_disconnect(cid)
     fig.canvas.mpl_disconnect(mid)

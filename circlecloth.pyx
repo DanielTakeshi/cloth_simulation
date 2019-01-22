@@ -137,50 +137,68 @@ class CircleCloth(Cloth):
                                gravity, elasticity, pin_cond]
 
 
-    def update(self):
+    def simulate(self):
         """Update function updates the state of the cloth after a time step.
         Updates ALL points in `self.pts`, via each `pt.update(...)` call.
 
         REMOVES points if there are no more constraints for it. That's why the
-        lower left point is removed, because there aren't constraints the way
-        it's set up above. Constraints 'go down' and 'go left', intuitively.
+        lower left point is removed ASAP, because there aren't constraints the
+        way it's set up above. Constraints 'go down' and 'go left', intuitively.
         We made points as sets, so removal should be O(1).
 
-        The `physics_accuracy` term: when resolving a constraint we affect other
-        constraints that need to be updated? Probably. Calls to resolve
-        constraints may remove items from different `pt.constraints` lists. Note
-        call order: call the _point_'s method, which first resolves individual
-        constraints before resolving boundary constraints. (In our case we
-        really don't need boundary constraints.)
+        Our work flow for each simulate() call:
+        
+        - (Potentially) we might have had our gripper change the x,y,z position
+          of the points, but it does NOT change the force vectors, interesting.
+        - For all springs, apply Hooke's Law (of some form, with elasticity) and
+          add to forces which from the last stage were reset to 0. Our code also
+          tears if necessary, and handles bouncing off walls, but that's not of
+          concern to us.
+        - Apply gravity (well, without mass ...), add to forces. I'd assume we
+          implicity have mass multipled but we also have to do that for the
+          Verlet since acc = F/m but I don't see us dividing by anything except
+          a 2 which is perhaps the 1/2 constant ...
+        - Verlet Integration
+        - Reset 3D acceleration/force vectors to zero for all points, the
+          `point.{vx,vy,vz}` in our code.
+        - Apply the min-z constraint (edit: do this after cloth-cloth also?).
+        - Then apply cloth-cloth collisions
+        
+        CS 184 workflow for each simulate() call:
+        
+        - Reset 3D acceleration/force vectors to zero for all points, the
+          `pm.forces` in his code
+        - Apply gravity (multiply by mass), add to forces
+        - For all springs, apply Hooke's Law, add to forces
+        - Verlet Integration, set point position (and store last position)
+        - Build spatial map and conduct cloth-cloth collision corrections. This
+          will explicitly change each point's position (i.e., the position after
+          Verlet Integration). Uses _new_ force vectors, not the one used for
+          Verlet (good!).
+        - Other stuff which we won't be doing (e.g., shape collisions)
 
-        In CS 184 they computed the forces and then applied the constraints.
-        Ordering of those two shouldn't matter.
-
-        Oh, wait Brijen actually applies Hooke's law in `resolve_constraints()`,
-        because the vector involves the direction multiplied by some magnitude.
-        Still not sure on the detals, but that happens first, then WE do
-        pt.update() which also applie sthe gravity. So indeed it's doing what I
-        expect and following the class assignment.
+        We _should_ be doing the same thing that they are doing, assuming that
+        physics_accuracy is set at 1 and that we do cloth-cloth collisions. Not
+        sure why we had physics_accuracy set at 5?
         """
         physics_accuracy = self.physics_accuracy
         time_interval = self.time_interval
 
-       
-        # New: self-collisions, create spatial hash map, handle self-collisions.
-        #spatial_map = self.build_spatial_map()
-        # The self-collisions add forces to the objects. After this we might
-        # apply the other constraints that we have. But, I really feel physics
-        # accuracy should be 1 ... maybe it's larger due to elasticity?
-
-        # Daniel: need resolve constraints done before the update (verlet)
-        # because the constraint applies a form of Hooke's Law. But, it seems
-        # like he applies Hooke's law `physics_accuracy` times.
         for i in range(physics_accuracy):
             for pt in self.pts:
                 pt.resolve_constraints()
         for pt in self.pts:
             pt.update(time_interval)
  
+        # New: self-collisions, create spatial hash map, handle self-collisions.
+        # And I'd also apply the min-z coordinate...
+
+        spatial_map = self.build_spatial_map()
+        for pt in self.pts:
+            self.collide(pt, spatial_map)
+            # enforce min z
+
+        # Removing points. Should probably ignore for our application.
         toremoveshape, toremovenorm = [], []
         for pt in self.pts:
             if pt.constraints == []:
@@ -204,13 +222,23 @@ class CircleCloth(Cloth):
         map = defaultdict(list)
         for pt in self.pts:
             hash = self.hash_position(pt)
+            # TODO
         return map
 
 
     def hash_position(pt):
         """Finds a hash position for a given point `pt`.
         """
+        # TODO
         pass
+
+
+   def collide(a, hmap):
+        """Handle the self cloth-cloth collisions.
+        """
+        for b in self.pts:
+            pass
+        # TODO
 
 
     def reset(self):

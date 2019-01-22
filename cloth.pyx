@@ -44,7 +44,7 @@ class Cloth(object):
         self.initial_params = [(width, height), (dx, dy), gravity, elasticity, pin_cond]
 
 
-    def update(self):
+    def simulate(self):
         """Updates all the points in the cloth based on existing constraints.
         If a point exists with no constraints, remove it from the cloth.
         """
