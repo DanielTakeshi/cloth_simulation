@@ -94,12 +94,12 @@ class CircleCloth(Cloth):
                            elasticity=elasticity,
                            bounds=bounds)
 
-                # Constraint, current pt and the pt below it, except for bottom-most row
+                # Constraint, current pt and pt below it, except for bottom-most row
                 if i > 0:
                     idx = width * (i-1) + j
                     pt.add_constraint(self.pts[idx])
 
-                # Constraint, current pt and the pt to its left, except for leftmost column
+                # Constraint, current pt and pt to its left, except for leftmost column
                 if j > 0:
                     pt.add_constraint(self.pts[-1])
 

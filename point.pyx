@@ -9,25 +9,26 @@ A cloth is made up of a collection of these interacting with each other.
 """
 class Point(object):
 
-    def __init__(self, mouse, x=0, y=0, z=0, gravity=-1000.0, elasticity=1.0,
-                 bounds=(600, 600, 800), shape=0, identity=-1, noise=0,
-                 debug=False, min_z=None):
+    def __init__(self, mouse, x=0, y=0, z=0, bounds=(600, 600, 800),
+                 gravity=-1000.0, elasticity=1.0, friction=0.99,
+                 shape=0, identity=-1, noise=0, debug=False, min_z=None):
         """Initializes an instance of a particle.
         """
         self.mouse = mouse
-        self.x, self.y, self.z = x, y, z
+        self.x,  self.y,  self.z  = x, y, z
         self.px, self.py, self.pz = x, y, z
         self.vx, self.vy, self.vz = 0, 0, 0
-        self.min_z = min_z
-        self.constraints = []
+        self.bounds = bounds
         self.pinned = False
         self.gravity = gravity
         self.elasticity = elasticity
-        self.bounds = bounds
+        self.friction = friction
         self.shape = shape
-        self.noise = noise
         self.identity = identity
+        self.noise = noise
         self.debug = debug
+        self.min_z = min_z
+        self.constraints = []
 
 
     def add_constraint(self, pt, tear_dist=100):
@@ -110,17 +111,15 @@ class Point(object):
         self.add_force(0, 0, self.gravity)
 
         # ----------------------------------------------------------------------
-        # Verlet integration (note the delta^2). If only one of the sides is
-        # pinned, the sheet gradually moves towards the pinned side (it
-        # collapses, it's a known fact in cloth simulation). Lowering the
-        # `friction` constant translates to slower movement. Update: some of
-        # this is outdated now that I have 3D visuals to help me out.
+        # Verlet integration (note the delta^2). Here, f=friction and is 1-d, or
+        # 1-damping, where damping is a percentage between (0,1) that's usually
+        # very small. Lowering `f` here means its harder to move the sheet.
         # ----------------------------------------------------------------------
-        friction = 0.99
+        f = self.friction
         delta *= delta
-        nx = self.x + (self.x - self.px) * friction + ((self.vx / 2.0) * delta) + np.random.randn() * self.noise
-        ny = self.y + (self.y - self.py) * friction + ((self.vy / 2.0) * delta) + np.random.randn() * self.noise
-        nz = self.z + (self.z - self.pz) * friction + ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
+        nx = self.x + (self.x - self.px) * f + ((self.vx / 2.0) * delta) + np.random.randn() * self.noise
+        ny = self.y + (self.y - self.py) * f + ((self.vy / 2.0) * delta) + np.random.randn() * self.noise
+        nz = self.z + (self.z - self.pz) * f + ((self.vz / 2.0) * delta) + np.random.randn() * self.noise
 
         self.px, self.py, self.pz = self.x, self.y, self.z
         self.x,  self.y,  self.z  = nx, ny, nz
