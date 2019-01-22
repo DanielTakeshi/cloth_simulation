@@ -1,6 +1,7 @@
 from point import *
 from cloth import *
 from mouse import *
+from collections import defaultdict
 
 """
 A subclass of cloth, on which a circle pattern is drawn.
@@ -154,17 +155,32 @@ class CircleCloth(Cloth):
 
         In CS 184 they computed the forces and then applied the constraints.
         Ordering of those two shouldn't matter.
+
+        Oh, wait Brijen actually applies Hooke's law in `resolve_constraints()`,
+        because the vector involves the direction multiplied by some magnitude.
+        Still not sure on the detals, but that happens first, then WE do
+        pt.update() which also applie sthe gravity. So indeed it's doing what I
+        expect and following the class assignment.
         """
         physics_accuracy = self.physics_accuracy
         time_interval = self.time_interval
 
-        for pt in self.pts:
-            pt.update(time_interval)
+       
+        # New: self-collisions, create spatial hash map, handle self-collisions.
+        #spatial_map = self.build_spatial_map()
+        # The self-collisions add forces to the objects. After this we might
+        # apply the other constraints that we have. But, I really feel physics
+        # accuracy should be 1 ... maybe it's larger due to elasticity?
 
+        # Daniel: need resolve constraints done before the update (verlet)
+        # because the constraint applies a form of Hooke's Law. But, it seems
+        # like he applies Hooke's law `physics_accuracy` times.
         for i in range(physics_accuracy):
             for pt in self.pts:
                 pt.resolve_constraints()
-
+        for pt in self.pts:
+            pt.update(time_interval)
+ 
         toremoveshape, toremovenorm = [], []
         for pt in self.pts:
             if pt.constraints == []:
@@ -180,6 +196,21 @@ class CircleCloth(Cloth):
         for pt in toremoveshape:
             self.pts.remove(pt)
             self.shapepts.remove(pt)
+
+
+    def build_spatial_map(self):
+        """Build hash map following CS 184 code.
+        """
+        map = defaultdict(list)
+        for pt in self.pts:
+            hash = self.hash_position(pt)
+        return map
+
+
+    def hash_position(pt):
+        """Finds a hash position for a given point `pt`.
+        """
+        pass
 
 
     def reset(self):
