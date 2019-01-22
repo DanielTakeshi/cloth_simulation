@@ -51,8 +51,8 @@ def cut(mouse):
     For tensioning, wherever tension it by default has z-coordinate of 0,
     because we assume a tool has pinched it at that point.
     """
-    c = CircleCloth(mouse, width=50, height=50, elasticity=0.01, minimum_z=-20.0,
-                    gravity=-1000)
+    c = CircleCloth(mouse, width=50, height=50, elasticity=0.1, minimum_z=-20.0,
+                    gravity=-1000, physics_accuracy=5, time_interval=0.016)
     grip = Gripper(cloth=c)
     circlex = 540
     circley = 540

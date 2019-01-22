@@ -11,7 +11,7 @@ class CircleCloth(Cloth):
     def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10,
                  centerx=300, centery=300, radius=150, gravity=-1000.0,
                  elasticity=1.0, pin_cond="default", bounds=(600, 600, 800),
-                 minimum_z=None):
+                 minimum_z=None, physics_accuracy=5, time_interval=0.016):
         """A cloth on which a circle can be drawn.
         It can also be grabbed and tensioned at specific coordinates.
         
@@ -71,6 +71,8 @@ class CircleCloth(Cloth):
         if not mouse:
             mouse = Mouse(bounds=bounds)
         self.mouse = mouse
+        self.physics_accuracy = physics_accuracy
+        self.time_interval = time_interval
 
         # Should we multiply sqrt(2) to thresh dist? 100 is normal thresh dist.
         diag_dist = 100 * np.sqrt(2)
@@ -149,12 +151,14 @@ class CircleCloth(Cloth):
         constraints before resolving boundary constraints. (In our case we
         really don't need boundary constraints.)
         """
-        physics_accuracy = 5
+        physics_accuracy = self.physics_accuracy
+        time_interval = self.time_interval
+
         for i in range(physics_accuracy):
             for pt in self.pts:
                 pt.resolve_constraints()
         for pt in self.pts:
-            pt.update(0.016)
+            pt.update(time_interval)
         toremoveshape, toremovenorm = [], []
         for pt in self.pts:
             if pt.constraints == []:

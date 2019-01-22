@@ -1,5 +1,14 @@
 # cloth_simulation
 
+Contents:
+
+- [Introduction](#introduction)
+- [Figures/Results January 15](#figures-january-15)
+- [Figures/Results January 21](#figures-january-21)
+
+
+# Introduction
+
 This repository contains scripts used to simulate cloth physics in 3D under various conditions and interactions.
 
 Questions to consider and possible TODOs:
@@ -104,7 +113,7 @@ Dependencies that are only required for specific scripts in the repository, but 
 
 
 
-## Figures
+# Figures January 15
 
 Here are some figures taken in order of when I implemented or tested certain
 features.
@@ -223,3 +232,81 @@ Huh, this isn't bad! The cloth is actually stable in this position. Though, the
 cloth points share the same z-axis since there are no collision constraints, I
 think. The constraints here are only for (a) tear distance, and (b) normal
 Hooke's law. For extra constraints, see the CS 184 project website.
+
+
+
+
+
+# Figures January 21
+
+I decided to do more tuning. This is again without cloth-cloth collisions, and
+no shearing constraints, but now I have a good understanding of how to implement
+both of these (especially the cloth-cloth thing).
+
+## Elasticity
+
+If you set elasticity to be super low, you get stuff like this with
+elasticity=0.001:
+
+![](friction_0.99_elasticity_0.001_physics_5_time_0.016_gravity_-10k_start.png)
+
+where there is so much separation among the cloth items. I think we should
+probably avoid this. It's too low.
+
+Friction 0.99, elasticity 0.01, start and then end:
+
+![](friction_0.99_elasticity_0.01_physics_5_time_0.016_gravity_-1000_start.png)
+![](friction_0.99_elasticity_0.01_physics_5_time_0.016_gravity_-1000_end.png)
+
+Friction 0.99, elasticity 0.10, start, middle, and then end:
+
+![](friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
+![](friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_middle.png)
+![](friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_end.png)
+
+Friction 0.99, elasticity 1.00, start, middle, and then end:
+
+![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_start.png)
+![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_middle.png)
+![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_end.png)
+
+It seems clear that higher elasticity introduces more instability ...
+
+## Gravity
+
+Here's what happens with more gravity and elasticity of 1.0, start:
+
+![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-10k_start.png)
+
+and end:
+
+![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-10k_end.png)
+
+
+
+## Friction Constant
+
+Ouch, a low friction constant means we can't budge the thing (well, at least the
+way I named friction in the code...). At 0.50 the sheet's basically frozen ---
+the only reason why the gripped point is higher is that it is at the default of
+z=0. That's where I pinned it, but our tensioner can't pull it up as it should.
+At 0.9 it can pull it up a *tiny* bit. But yeah, don't do low friction
+constants.
+
+Friction 0.5 at the start:
+
+![](friction_0.50_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
+
+Friction 0.9 at the start:
+
+![](friction_0.90_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
+
+But with high friction like 0.999, we can *really* pull the sheet upwards,
+almost too much to be honest. And with elasticity of 0.1 I notice the same
+annoying issue where we have too much instability by the folded point.
+
+![](friction_0.999_elasticity_0.10_physics_5_time_0.016_gravity_-1000_end.png)
+![](friction_0.999_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
+
+
+
