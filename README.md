@@ -248,27 +248,27 @@ both of these (especially the cloth-cloth thing).
 If you set elasticity to be super low, you get stuff like this with
 elasticity=0.001:
 
-![](friction_0.99_elasticity_0.001_physics_5_time_0.016_gravity_-10k_start.png)
+![](figs/friction_0.99_elasticity_0.001_physics_5_time_0.016_gravity_-10k_start.png)
 
 where there is so much separation among the cloth items. I think we should
 probably avoid this. It's too low.
 
 Friction 0.99, elasticity 0.01, start and then end:
 
-![](friction_0.99_elasticity_0.01_physics_5_time_0.016_gravity_-1000_start.png)
-![](friction_0.99_elasticity_0.01_physics_5_time_0.016_gravity_-1000_end.png)
+![](figs/friction_0.99_elasticity_0.01_physics_5_time_0.016_gravity_-1000_start.png)
+![](figs/friction_0.99_elasticity_0.01_physics_5_time_0.016_gravity_-1000_end.png)
 
 Friction 0.99, elasticity 0.10, start, middle, and then end:
 
-![](friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
-![](friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_middle.png)
-![](friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_end.png)
+![](figs/friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
+![](figs/friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_middle.png)
+![](figs/friction_0.99_elasticity_0.10_physics_5_time_0.016_gravity_-1000_end.png)
 
 Friction 0.99, elasticity 1.00, start, middle, and then end:
 
-![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_start.png)
-![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_middle.png)
-![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_end.png)
+![](figs/friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_start.png)
+![](figs/friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_middle.png)
+![](figs/friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-1000_end.png)
 
 It seems clear that higher elasticity introduces more instability ...
 
@@ -276,11 +276,14 @@ It seems clear that higher elasticity introduces more instability ...
 
 Here's what happens with more gravity and elasticity of 1.0, start:
 
-![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-10k_start.png)
+![](figs/friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-10k_start.png)
 
 and end:
 
-![](friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-10k_end.png)
+![](figs/friction_0.99_elasticity_1.00_physics_5_time_0.016_gravity_-10k_end.png)
+
+Unfortunately, the fold was not stable. It literally just reverted back to the
+flat sheet/form.
 
 
 
@@ -295,18 +298,18 @@ constants.
 
 Friction 0.5 at the start:
 
-![](friction_0.50_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
+![](figs/friction_0.50_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
 
 Friction 0.9 at the start:
 
-![](friction_0.90_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
+![](figs/friction_0.90_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
 
 But with high friction like 0.999, we can *really* pull the sheet upwards,
 almost too much to be honest. And with elasticity of 0.1 I notice the same
 annoying issue where we have too much instability by the folded point.
 
-![](friction_0.999_elasticity_0.10_physics_5_time_0.016_gravity_-1000_end.png)
-![](friction_0.999_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
+![](figs/friction_0.999_elasticity_0.10_physics_5_time_0.016_gravity_-1000_end.png)
+![](figs/friction_0.999_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
 
 
 
