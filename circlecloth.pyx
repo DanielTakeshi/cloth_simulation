@@ -60,7 +60,7 @@ class CircleCloth(Cloth):
         stabilizing) as simulation proceeds due to gravity.
 
         Main difference with this and superclass is that we track circle points
-        specifically, so we can visulize them later (and also to determine if a
+        specifically, so we can visualize them later (and also to determine if a
         cutting point is close to the circle).
         """
         self.pts = []
@@ -130,7 +130,8 @@ class CircleCloth(Cloth):
                     self.normalpts.append(pt)
                 self.pts.append(pt)
 
-        self.pts, self.normalpts, self.shapepts = set(self.pts), set(self.normalpts), set(self.shapepts)
+        self.pts, self.normalpts, self.shapepts = \
+                set(self.pts), set(self.normalpts), set(self.shapepts)
         self.initial_params = [(width, height), (dx, dy), (centerx, centery, radius),
                                gravity, elasticity, pin_cond]
 
@@ -150,15 +151,20 @@ class CircleCloth(Cloth):
         call order: call the _point_'s method, which first resolves individual
         constraints before resolving boundary constraints. (In our case we
         really don't need boundary constraints.)
+
+        In CS 184 they computed the forces and then applied the constraints.
+        Ordering of those two shouldn't matter.
         """
         physics_accuracy = self.physics_accuracy
         time_interval = self.time_interval
 
+        for pt in self.pts:
+            pt.update(time_interval)
+
         for i in range(physics_accuracy):
             for pt in self.pts:
                 pt.resolve_constraints()
-        for pt in self.pts:
-            pt.update(time_interval)
+
         toremoveshape, toremovenorm = [], []
         for pt in self.pts:
             if pt.constraints == []:

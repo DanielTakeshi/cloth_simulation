@@ -312,4 +312,20 @@ annoying issue where we have too much instability by the folded point.
 ![](figs/friction_0.999_elasticity_0.10_physics_5_time_0.016_gravity_-1000_start.png)
 
 
+## Physics Accuracy
 
+The CS 184 course does Verlet integration followed by a single constraint
+resolution. Here, we seem to be doing 5 constraint resolutions (the
+`physics_accuracy` parameter) for a single Verlet update.
+
+In fact, I notice that with `physics_accuracy=1` I get:
+
+![](figs/physics_acc_1_elasticity_0.1.png)
+
+And with `physics_accuracy=5` I get:
+
+![](figs/physics_acc_5_elasticity_0.1.png)
+
+So, 1 is better than 5, from a realism perspective. In addition, 1 is stable
+whereas 5 is unstale and slowly flattening out. Both are with elasticity 0.1 and
+gravity -1000.
