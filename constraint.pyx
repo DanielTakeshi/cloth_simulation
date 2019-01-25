@@ -53,7 +53,6 @@ class Constraint(object):
         delta[2] = self.p1.z - self.p2.z
         cdef double dist = sqrt(delta[0] ** 2 + delta[1] ** 2 + delta[2] ** 2)
         cdef double diff = ((self.length - dist) / float(dist)) * 0.5 * self.elasticity
-        # Confused: why (dist-self.length) doesn't work? Order has to be other way around.
 
         if dist > self.tear_dist:
             self.p1.constraints.remove(self)
@@ -64,7 +63,10 @@ class Constraint(object):
         cdef double pz = diff * delta[2]
 
         if not self.p1.pinned:
-            self.p1.x, self.p1.y, self.p1.z = self.p1.x + px, self.p1.y + py, self.p1.z + pz
-
+            self.p1.x = self.p1.x + px
+            self.p1.y = self.p1.y + py
+            self.p1.z = self.p1.z + pz
         if not self.p2.pinned:
-            self.p2.x, self.p2.y, self.p2.z = self.p2.x - px, self.p2.y - py, self.p2.z - pz
+            self.p2.x = self.p2.x - px
+            self.p2.y = self.p2.y - py
+            self.p2.z = self.p2.z - pz

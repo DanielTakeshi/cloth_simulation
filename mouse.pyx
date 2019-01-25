@@ -10,7 +10,8 @@ by default but I think best to only do if we're clicking.
 class Mouse(object):
 
     def __init__(self, x=0, y=0, z=0, height_limit=False, down=False,
-                 button=0, bounds=(600, 600, 800), influence=5, cut=10):
+                 button=0, bounds=(600, 600, 800), influence=5, cut=10,
+                 enable_cutting=True):
         self.down = down
         self.button = button
         self.x, self.y, self.z = x, y, z
@@ -23,6 +24,7 @@ class Mouse(object):
         else:
             self.height_limit = float('inf')
         self.initial_params = [(x, y, z), self.height_limit, down, button]
+        self.enable_cutting = enable_cutting
 
 
     def move(self, x, y, z=None):
@@ -41,7 +43,8 @@ class Mouse(object):
     def clicked(self, event):
         """ Handles click events of the mouse.
         """
-        self.down = True
+        if self.enable_cutting:
+            self.down = True
 
 
     def released(self, event):

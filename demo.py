@@ -5,7 +5,7 @@ If this file is modified, you don't need to re-compile/build the cython code.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
+import sys, os, argparse
 from cloth import *
 from circlecloth import *
 from mouse import *
@@ -34,15 +34,15 @@ def pull(i, tensioner):
     """Looks cool. Feel free to adjust...
     """
     if i % 10 == 0:
-        if i < 50:
-            tensioner.tension(x=0.0, y=0.0, z=0.1)
+        if i < 120:
+            tensioner.tension(x=0.0, y=0.0, z=0.2)
         elif i < 200:
-            tensioner.tension(x=-0.5, y=-0.5, z=0.0)
+            tensioner.tension(x=-0.4, y=-0.4, z=0.0)
         else:
             tensioner.unpin_position()
 
 
-def cut(mouse):
+def move(c, updates_per_move):
     """If you want to let the cloth settle, just run `c.update()` beforehand.
 
     Careful, changing width/height will add more points but not make it stable;
@@ -51,12 +51,11 @@ def cut(mouse):
     For tensioning, wherever tension it by default has z-coordinate of 0,
     because we assume a tool has pinched it at that point.
     """
-    c = CircleCloth(mouse, width=40, height=40, centerx=250, centery=250,
-                    radius=100, elasticity=0.1, minimum_z=-20.0, gravity=-1000,
-                    physics_accuracy=1, time_interval=0.016)
     grip = Gripper(cloth=c)
-    circlex = 450
-    circley = 450
+
+    # Will put this in a separate class soon. Need a 'pin' and then we can pull.
+    circlex = 300
+    circley = 300
     c.pin_position(circlex, circley)
     tensioner = c.tensioners[0]
 
@@ -89,14 +88,13 @@ def cut(mouse):
         if len(cpts) > 0:
             ax1.scatter(cpts[:,0], cpts[:,1], c='b')
             ax2.scatter(cpts[:,0], cpts[:,1], cpts[:,2], c='b')
-        ax2.set_zlim([-50, 50]) # only for visualization purposes
+        ax2.set_zlim([0, 300]) # only for visualization purposes
         plt.pause(0.001)
         # ----------------------------------------------------------------------
 
         # Updates (+5 extra) to allow cloth to respond to environment. Think of
         # it as like a 'frame skip' parameter.
-        c.simulate()
-        for j in range(5):
+        for _ in range(updates_per_move):
             c.simulate()
 
     fig.canvas.mpl_disconnect(cid)
@@ -105,9 +103,57 @@ def cut(mouse):
 
 
 if __name__ == "__main__":
+    # --------------------------------------------------------------------------
+    # Height and width are from a 2D perspective, really length and width...
+    # Also those indicate the actual amount of discretized points, then dx,dy
+    # the 'real-world spacing'. Put all these in `json` files later.
+    # --------------------------------------------------------------------------
+    pp = argparse.ArgumentParser()
+    pp.add_argument('--norender', action='store_true', default=False)
+    pp.add_argument('--enable_cutting', action='store_true', default=False)
+    pp.add_argument('--width', type=int, default=25)
+    pp.add_argument('--height', type=int, default=25)
+    pp.add_argument('--dx', type=float, default=10.0)
+    pp.add_argument('--dy', type=float, default=10.0)
+    pp.add_argument('--offset', type=float, default=50.0)
+    pp.add_argument('--centerx', type=float, default=250.0)
+    pp.add_argument('--centery', type=float, default=250.0)
+    pp.add_argument('--radius', type=float, default=100.0)
+    pp.add_argument('--gravity', type=float, default=-1000.0)
+    pp.add_argument('--elasticity', type=float, default=1.0)
+    pp.add_argument('--min_z', type=float, default=0.0)
+    pp.add_argument('--time_interval', type=float, default=0.016)
+    pp.add_argument('--thickness', type=float, default=3.0)
+    pp.add_argument('--updates_per_move', type=int, default=6) # like frame skip
+    args = pp.parse_args()
+    args.seed = 1
+
     # Originally mouse.down = True but I think it's better as False.
-    mouse = Mouse()
+    mouse = Mouse(enable_cutting=args.enable_cutting)
     mouse.down = False
     mouse.button = 0
 
-    cut(mouse)
+    bounds = (args.offset*2 + args.width*args.dx,
+              args.offset*2 + args.height*args.dy, 400)
+
+    pin_cond = 'x=0,y=0'
+    assert pin_cond in ['x=0,y=0', 'y=0', 'y=0,y=height'], pin_cond
+
+    c = CircleCloth(mouse,
+        width=args.width,
+        height=args.height,
+        dx=args.dx,
+        dy=args.dy,
+        offset=args.offset,
+        centerx=args.centerx,
+        centery=args.centery,
+        radius=args.radius,
+        gravity=args.gravity,
+        elasticity=args.elasticity,
+        pin_cond=pin_cond,
+        bounds=bounds,
+        minimum_z=args.min_z,
+        time_interval=args.time_interval,
+        thickness=args.thickness,
+	)
+    move(c, args.updates_per_move)

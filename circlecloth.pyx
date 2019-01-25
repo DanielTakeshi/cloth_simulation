@@ -14,8 +14,8 @@ class CircleCloth(Cloth):
     def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10,
                  centerx=300, centery=300, radius=150, gravity=-1000.0,
                  elasticity=1.0, pin_cond="default", bounds=(600, 600, 800),
-                 minimum_z=None, physics_accuracy=5, time_interval=0.016,
-                 thickness=3):
+                 minimum_z=None, time_interval=0.016, thickness=3,
+                 offset=50):
         """A cloth on which a circle can be drawn.
         It can also be grabbed and tensioned at specific coordinates.
         
@@ -75,7 +75,6 @@ class CircleCloth(Cloth):
         if not mouse:
             mouse = Mouse(bounds=bounds)
         self.mouse = mouse
-        self.physics_accuracy = physics_accuracy
         self.time_interval = time_interval
         self.min_z = minimum_z
         self.thickness = thickness
@@ -84,16 +83,21 @@ class CircleCloth(Cloth):
         diag_dist = 100 * np.sqrt(2)
 
         # Use this fxn to simulate cloth pinned along top and bottom.
-        if pin_cond == "default":
+        if pin_cond == "x=0,y=0":
             pin_cond = lambda x, y, height, width: y == 0 or x==0
-            ##pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
+        elif pin_cond == "y=0":
+            pin_cond = lambda x, y, height, width: y == 0
+        elif pin_cond == "y=0,y=height":
+            pin_cond = lambda x, y, height, width: y == height-1 or y == 0
+        else:
+            raise ValueError(pin_cond)
 
         for i in range(height):
             for j in range(width):
                 #print("Adding point, (x,y): ({},{})".format(j,i))
                 pt = Point(mouse,
-                           x = 50 + dx*j,
-                           y = 50 + dy*i,
+                           x = offset + dx*j,
+                           y = offset + dy*i,
                            z = 0,
                            min_z=minimum_z,
                            gravity=gravity,
@@ -186,7 +190,7 @@ class CircleCloth(Cloth):
         physics_accuracy is set at 1 and that we do cloth-cloth collisions. Not
         sure why we had physics_accuracy set at 5?
         """
-        physics_accuracy = self.physics_accuracy
+        physics_accuracy = 1
         time_interval = self.time_interval
 
         for i in range(physics_accuracy):
