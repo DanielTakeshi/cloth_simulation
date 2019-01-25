@@ -329,3 +329,29 @@ And with `physics_accuracy=5` I get:
 So, 1 is better than 5, from a realism perspective. In addition, 1 is stable
 whereas 5 is unstale and slowly flattening out. Both are with elasticity 0.1 and
 gravity -1000.
+
+
+## Cloth-Cloth Collisions
+
+I implemented a basic spatial hashing for collisions.
+
+Here is near the start, with elasticity 0.1, and where I also set another row to
+be pinned:
+
+![](figs/cloth-cloth-01.png)
+
+And here's later:
+
+![](figs/cloth-cloth-02.png)
+
+Unfortunately:
+
+- It's slow.
+- Hard to debug, tell if it's working? Seems like the points are too close to
+  each other in the figure with it folded.
+- It isn't as stable as I would like. I *think* it's somewhat stable but still
+  shaky, and I actually pinned an extra row as described earlier.
+
+I need a better renderer ... now. Also, to reduce the state space, I guess.
+We're not doing 40x40 in practice. My guess is something like 20x20 might even
+suffice.

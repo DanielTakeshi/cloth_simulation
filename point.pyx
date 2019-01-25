@@ -31,6 +31,14 @@ class Point(object):
         self.constraints = []
 
 
+    def __str__(self):
+        str = "({:.3f}, {:.3f}, {:.3f})".format(self.x, self.y, self.z)
+        return str
+
+    def __repr__(self):
+        return str(self)
+
+
     def add_constraint(self, pt, tear_dist=100):
         """Adds a constraint between this point and another point.
         """
@@ -48,34 +56,11 @@ class Point(object):
 
 
     def resolve_constraints(self):
-        """
-        Resolves all constraints pertaining to this point, and simulates
-        bouncing off the walls if the point tries to go out of bounds.
+        """Resolve constraints wrt this point.
         """
         for constraint in self.constraints:
             constraint.resolve()
         
-        # Daniel: let's not worry about these. Doesn't apply for us.
-        ##boundsx, boundsy, boundsz = self.bounds
-        ##if self.x >= boundsx:
-        ##    self.x = 2 * boundsx - self.x + np.random.randn() * self.noise
-        ##elif self.x < 1:
-        ##    self.x = 2 - self.x + np.random.randn() * self.noise
-        ##if self.y >= boundsy:
-        ##    self.y = 2 * boundsy - self.y + np.random.randn() * self.noise
-        ##elif self.y < 1:
-        ##    self.y = 2 - self.y + np.random.randn() * self.noise
-        ##if self.z >= boundsz:
-        ##    self.z = 2 * boundsz - self.z + np.random.randn() * self.noise
-        ##elif self.z <= -boundsz:
-        ##    self.z = -2 * boundsz - self.z + np.random.randn() * self.noise
-
-        ### Maybe try this? I think this works, though the tricky thing is that
-        ### the renderer will make it look like it's 0.12 because that's where it
-        ### would have been before this is applied.
-        ##if self.min_z is not None:
-        ##    self.z = max(self.min_z, self.z)
-
 
     def update(self, delta):
         """ APPLY VERLET INTEGRATION. Updates the point, takes in mouse input.

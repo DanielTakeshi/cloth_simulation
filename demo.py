@@ -52,7 +52,7 @@ def cut(mouse):
     because we assume a tool has pinched it at that point.
     """
     c = CircleCloth(mouse, width=40, height=40, centerx=250, centery=250,
-                    radius=100, elasticity=1.0, minimum_z=-20.0, gravity=-1000,
+                    radius=100, elasticity=0.1, minimum_z=-20.0, gravity=-1000,
                     physics_accuracy=1, time_interval=0.016)
     grip = Gripper(cloth=c)
     circlex = 450
