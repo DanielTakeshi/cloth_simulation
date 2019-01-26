@@ -31,6 +31,15 @@ class Point(object):
         self.constraints = []
 
 
+    def get_scaled(self, size=300.0):
+        """For rendering with PyOpenGL, requires points in range [-1,1].
+        """
+        scaled = [(self.x-150.0) / size,
+                  (self.y-150.0) / size,
+                  (self.z) / size]
+        return scaled
+
+
     def __str__(self):
         str = "({:.3f}, {:.3f}, {:.3f})".format(self.x, self.y, self.z)
         return str

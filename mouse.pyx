@@ -37,7 +37,8 @@ class Mouse(object):
             self.px, self.py = self.x, self.y
             self.x, self.y = x, y
         else:
-            print("Invalid location: Out of Bounds.")
+            pass
+            #print("Invalid location: Out of Bounds.")
 
 
     def clicked(self, event):
