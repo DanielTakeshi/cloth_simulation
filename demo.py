@@ -16,7 +16,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from gripper import Gripper
 
 # ------------------------------------------------------------------------------
-# From cloth sim tutorial using PyOpenGL, Ian Mallett tutorial.
+# From cloth sim tutorial using PyOpenGL, Ian Mallett tutorial. But it's
+# terribly slow and the click interface to move things around is bad. Ah:
+# https://stackoverflow.com/questions/32921445/pyopengl-terribly-slow
+# I am trying to clear and refresh points each time. That is slow.
 # ------------------------------------------------------------------------------
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -29,7 +32,7 @@ from math import *
 
 pygame.display.init()
 pygame.font.init()
-screen_size = [800,600]
+screen_size = [1200,1200]
 multisample = 16
 icon = pygame.Surface((1,1)); icon.set_alpha(0); pygame.display.set_icon(icon)
 pygame.display.set_caption("Cloth Demo 2 - Ian Mallett - v.2 - 2012")
@@ -78,11 +81,12 @@ def get_input():
 
 
 def cloth_draw(circle_cloth):
-    glBegin(GL_POINTS)
-    #for row in self.particles:
-    #    for particle in row:
-    #        particle.draw()
-    glEnd()
+    pass
+    #glBegin(GL_POINTS)
+    #for pt in circle_cloth.pts:
+    #    pass #TODO
+    #    sys.exit()
+    #glEnd()
 
 
 def cloth_draw_wireframe(circle_cloth):
@@ -199,49 +203,53 @@ def move(c, args):
     tensioner = c.tensioners[0]
 
     if args.viz_tool == 'matplotlib':
-        # Use `plt.ion()` for interactive plots, requires `plt.pause(...)` later.
-        nrows, ncols = 1, 2
-        fig = plt.figure(figsize=(12*ncols,12*nrows))
-        ax1 = fig.add_subplot(1, 2, 1)
-        ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-        plt.ion()
-        plt.tight_layout()
-        cid = fig.canvas.mpl_connect('button_press_event', mouse.clicked)
-        rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
-        mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
+        if not args.norender:
+            # Use `plt.ion()` for interactive plots, requires `plt.pause(...)` later.
+            nrows, ncols = 1, 2
+            fig = plt.figure(figsize=(12*ncols,12*nrows))
+            ax1 = fig.add_subplot(1, 2, 1)
+            ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+            plt.ion()
+            plt.tight_layout()
+            cid = fig.canvas.mpl_connect('button_press_event', mouse.clicked)
+            rid = fig.canvas.mpl_connect('button_release_event', mouse.released)
+            mid = fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
 
         for i in range(args.num_sim_iters):
             if i % 10 == 0:
                 elapsed_time = (time.time() - start_t) / 60.0
                 print("Iteration {}, minutes: {:.1f}".format(i, elapsed_time))
                 z_vals = [p.z for p in c.shapepts]
-                print("  average z: {:.2f}".format(np.mean(z_vals)))
-                print("  median z:  {:.2f}".format(np.median(z_vals)))
-            ax1.cla()
-            ax2.cla()
+                print("  average z: {}".format(np.mean(z_vals)))
+                print("  median z:  {}".format(np.median(z_vals)))
+            if not args.norender:
+                ax1.cla()
+                ax2.cla()
             pull(i, tensioner)
             # ----------------------------------------------------------------------
             # Re-insert the points, with appropriate colors. 2D AND 3D together.
             # ----------------------------------------------------------------------
-            pts  = np.array([[p.x, p.y, p.z] for p in c.normalpts])
-            cpts = np.array([[p.x, p.y, p.z] for p in c.shapepts])
-            if len(pts) > 0:
-                ax1.scatter(pts[:,0], pts[:,1], c='g')
-                ax2.scatter(pts[:,0], pts[:,1], pts[:,2], c='g')
-            if len(cpts) > 0:
-                ax1.scatter(cpts[:,0], cpts[:,1], c='b')
-                ax2.scatter(cpts[:,0], cpts[:,1], cpts[:,2], c='b')
-            ax2.set_zlim([0, 300]) # only for visualization purposes
-            plt.pause(0.001)
+            if not args.norender:
+                pts  = np.array([[p.x, p.y, p.z] for p in c.normalpts])
+                cpts = np.array([[p.x, p.y, p.z] for p in c.shapepts])
+                if len(pts) > 0:
+                    ax1.scatter(pts[:,0], pts[:,1], c='g')
+                    ax2.scatter(pts[:,0], pts[:,1], pts[:,2], c='g')
+                if len(cpts) > 0:
+                    ax1.scatter(cpts[:,0], cpts[:,1], c='b')
+                    ax2.scatter(cpts[:,0], cpts[:,1], cpts[:,2], c='b')
+                ax2.set_zlim([0, 300]) # only for visualization purposes
+                plt.pause(0.001)
             # ----------------------------------------------------------------------
             # Updates (+5 extra) to allow cloth to respond to environment. Think of
             # it as like a 'frame skip' parameter.
             for _ in range(args.updates_per_move):
                 c.simulate()
 
-        fig.canvas.mpl_disconnect(cid)
-        fig.canvas.mpl_disconnect(mid)
-        fig.canvas.mpl_disconnect(rid)
+        if not args.norender:
+            fig.canvas.mpl_disconnect(cid)
+            fig.canvas.mpl_disconnect(mid)
+            fig.canvas.mpl_disconnect(rid)
 
     elif args.viz_tool == 'pyopengl':
         # Note: 1/60 ~ 0.016 so we might as well try this way ...
@@ -264,6 +272,9 @@ def move(c, args):
             draw(c)
             clock.tick(target_fps)
         pygame.quit()
+
+    elapsed_time = (time.time() - start_t) / 60.0
+    print("Total time, minutes: {:.2f}".format(elapsed_time))
 
 
 if __name__ == "__main__":
