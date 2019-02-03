@@ -36,6 +36,14 @@ class Tensioner(object):
                 pt.pinned = True
                 self.grabbed_pts.append(pt)
 
+    def pin_points(self, pts):
+        """Grab specific points given their object references.
+        """
+        for pt in self.cloth.pts:
+            if pt in pts:
+                pt.pinned = True
+                self.grabbed_pts.append(pt)
+
 
     def unpin_position(self):
         """Let go of a grabbed position, and remove the current tensioner.
