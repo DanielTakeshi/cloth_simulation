@@ -1,7 +1,6 @@
 from point import *
 from cloth import *
 from mouse import *
-from registration import *
 from collections import deque
 from scipy import signal
 from scipy import stats

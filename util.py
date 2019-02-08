@@ -19,4 +19,4 @@ def load_from_file(filename):
     try:
         return pickle.load(f)
     except EOFError:
-        print 'Nothing written to file.'
+        print('Nothing written to file.')
