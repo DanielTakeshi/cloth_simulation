@@ -49,16 +49,16 @@ class ClothEnv(gym.Env):
         # remember which points constitute the corner
         self.corner_points = self.tensioner.grabbed_pts 
         # execute a longer, diagonal fold to get a non-flat starting state
-        # for i in range(self.ITERS_PER_PULL * 2 + 200):
-        #     if i % 10 == 0:
-        #         if i < 50:
-        #             self.tensioner.tension(x=0.0, y=0.0, z=0.2)
-        #         elif i < 50 + self.ITERS_PER_PULL * 2:
-        #             self.tensioner.tension(x=-0.4, y=-0.4, z=0.0)
-        #         else:
-        #             self.tensioner.unpin_position()
-        #     for _ in range(self.UPDATES_PER_MOVE):
-        #         self.cloth.simulate()
+        for i in range(self.ITERS_PER_PULL * 2 + 200):
+            if i % 10 == 0:
+                if i < 50:
+                    self.tensioner.tension(x=0.0, y=0.0, z=0.2)
+                elif i < 50 + self.ITERS_PER_PULL * 2:
+                    self.tensioner.tension(x=-0.4, y=-0.4, z=0.0)
+                else:
+                    self.tensioner.unpin_position()
+            for _ in range(self.UPDATES_PER_MOVE):
+                self.cloth.simulate()
 
 
     def pull(self, i, direction):
