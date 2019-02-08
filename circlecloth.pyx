@@ -337,13 +337,21 @@ class CircleCloth(Cloth):
         self.shapepts = []
         self.normalpts = []
         self.tensioners = []
+        diag_dist = 100 * np.sqrt(2)
         for i in range(height):
             for j in range(width):
-                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity)
+                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, z=0, min_z=self.min_z, gravity=gravity, elasticity=elasticity)
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:
                     pt.add_constraint(self.pts[-1])
+                if j > 0 and i > 0:
+                    idx = width * (i-1) + j - 1
+                    pt.add_constraint(self.pts[idx], tear_dist=diag_dist)
+                # Diagonal constraint 2, pt and the pt to lower right
+                if j < width-1 and i > 0:
+                    idx = width * (i-1) + j + 1
+                    pt.add_constraint(self.pts[idx], tear_dist=diag_dist)
                 if pin_cond(j, i, height, width):
                     pt.pinned = True
                 if abs((pt.x - centerx) **2 + (pt.y - centery) ** 2 - radius **2) < 2000:
